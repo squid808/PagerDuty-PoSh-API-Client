@@ -1,3 +1,5 @@
+#Requires -Version 3.0
+
 $PagerDutyCoreClass = New-Object psobject -Property @{
     apiKey = $null
     domain = $null
@@ -169,3 +171,36 @@ function Get-PagerDutyCore{
          
     return $PagerDutyCore
 }
+
+. .\Users\Users.ps1
+
+@"
+Help Template, remove this when the project has been completed.
+<#
+.SYNOPSIS
+    
+
+.DESCRIPTION
+    
+
+.EXAMPLE
+    <example here>
+
+    RESULTS
+
+    DESCRIPTION
+
+.INPUTS
+
+
+.OUTPUTS
+
+
+.NOTES
+    
+
+.LINK
+    https://github.com/robcerda60/PagerDuty-PoSh-API-Client
+
+#>
+"@
