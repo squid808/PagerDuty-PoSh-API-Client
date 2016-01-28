@@ -1,15 +1,15 @@
-$PagerDutyCore = New-Object psobject -Property @{
+$PagerDutyCoreClass = New-Object psobject -Property @{
     apiKey = $null
     domain = $null
     authFolder = $env:USERPROFILE + "\Documents\WindowsPowerShell\Modules\PagerDutyAPI"
     authFileName = "authSettings.json"
 }
 
-$PagerDutyCore | Add-Member -MemberType ScriptProperty -Name "authFilePath" -Value {
+$PagerDutyCoreClass | Add-Member -MemberType ScriptProperty -Name "authFilePath" -Value {
     return [System.IO.Path]::Combine($this.authFolder, $this.authFileName)
 }
 
-$PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "LoadAuthDetails" -Value {
+$PagerDutyCoreClass | Add-Member -MemberType ScriptMethod -Name "LoadAuthDetails" -Value {
     if (Test-Path $this.authFilePath -PathType Leaf) {
         $json = Get-Content -Raw -Path $this.authFilePath | ConvertFrom-Json
         $this.apiKey = $json.apiKey
@@ -17,12 +17,12 @@ $PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "LoadAuthDetails" -Va
     }
 }
 
-$PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "SaveAuthDetails" -Value {
+$PagerDutyCoreClass | Add-Member -MemberType ScriptMethod -Name "SaveAuthDetails" -Value {
     if (-not (Test-Path $this.authFolder)) {New-Item -Path $this.authFolder -ItemType Directory}    
     $this | select apiKey, domain | ConvertTo-Json | Out-File -FilePath $this.authFilePath
 }
 
-$PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "CheckForAuthDetails" -Value {
+$PagerDutyCoreClass | Add-Member -MemberType ScriptMethod -Name "CheckForAuthDetails" -Value {
     if ($this.apiKey -eq $null -OR $this.domain -eq $null) {
         $this.LoadAuthDetails()
     }
@@ -41,24 +41,28 @@ $PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "CheckForAuthDetails"
     }
 }
 
-$PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ApiPost" -Value {
-    param([string]$apiPath, [int]$limit = 100)
+$PagerDutyCoreClass | Add-Member -MemberType ScriptMethod -Name "ApiPost" -Value {
+    param([string]$apiPath, [System.Collections.Hashtable]$body)
     
-    return $this.ApiCallBase($apiPath, [Microsoft.PowerShell.Commands.WebRequestMethod]::Post, $limit)
+    return $this.ApiCallBase($apiPath, [Microsoft.PowerShell.Commands.WebRequestMethod]::Post, $body)
 }
 
-$PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ApiGet" -Value {
-    param([string]$apiPath, [int]$limit = 100)
+$PagerDutyCoreClass | Add-Member -MemberType ScriptMethod -Name "ApiGet" -Value {
+    param([string]$apiPath, [System.Collections.Hashtable]$body, [int]$maxResults = $null, [int]$limit = 100)
 
-    return $this.ApiCallBase($apiPath, [Microsoft.PowerShell.Commands.WebRequestMethod]::Get, $limit)
+    return $this.ApiCallBase($apiPath, [Microsoft.PowerShell.Commands.WebRequestMethod]::Get, $body, $maxResults, $limit)
 }
 
-$PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ApiCallBase" -Value {
+$PagerDutyCoreClass | Add-Member -MemberType ScriptMethod -Name "ApiCallBase" -Value {
     param( 
         [string]$apiPath,
         [Microsoft.PowerShell.Commands.WebRequestMethod]$Method,
+        [System.Collections.Hashtable]$body,
+        [int]$maxResults = $null,
         [int]$limit = 100
     )
+
+    $bodyAdditions = $body
 
     $this.CheckForAuthDetails()
 
@@ -74,6 +78,14 @@ $PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ApiCallBase" -Value 
         "offset"=0
     }
 
+    if ($bodyAdditions -ne $null -AND $bodyAdditions.Count -gt 0){
+        $bodyAdditions.Keys | % {$body.Add($_, $bodyAdditions[$_])}
+    }
+
+    if ($maxResults -ne $null -AND $maxResults -gt 0 -AND $maxResults -lt $limit){
+        $body["limit"] = $maxResults
+    }
+
     $results = Invoke-RestMethod -Method Get -Headers $headers -Uri $uri -Body $body
 
     if ($results.total -ne $null -OR 
@@ -87,15 +99,27 @@ $PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ApiCallBase" -Value 
         $pagesCount = [System.Math]::Ceiling($results.total/$limit)
 
         do {
+
+            if ($maxResults -ne $null -AND $maxResults -gt 0){
+                if (($results.offset + $results.limit) -ge $maxResults) {
+                    break
+                } else {
+                    if (($results.offset + ($results.limit*2)) -ge $maxResults){
+                        $body["limit"] = $maxResults - ($results.offset + $results.limit)
+                    }
+                }
+            }
+            
             $nextPage = [System.Math]::Ceiling(($results.offset + $limit)/$limit)
 
             Write-Progress -Activity "Working with PagerDuty API" `
                 -Status ("Pulling page {0}/{1}" -f $nextPage, $pagesCount) `
                 -PercentComplete (($nextPage/$pagesCount)*100)
 
-            $body = @{
-                "limit"=$limit
-                "offset"=$results.offset + $limit
+            $body["offset"]=($results.offset + $limit)
+
+            if ($maxResults -ne $null -AND $maxResults -gt 0 -AND $maxResults -lt ($collection.Count + $limit)){
+                $body["limit"] = ($maxResults - $collection.Count)
             }
 
             $results = Invoke-RestMethod -Method Get -Headers $headers -Uri $Uri -Body $body
@@ -106,9 +130,34 @@ $PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ApiCallBase" -Value 
 
         return $collection
     } else {
-        return 
+        return $results
     }
 }
+
+$PagerDutyCoreClass | Add-Member -MemberType ScriptMethod -Name "VerifyTypeMatch" -Value {
+    param( 
+        $InputObject,
+        [string]$ExpectedType
+    )
+
+    $type = (Get-Member -InputObject $InputObject).TypeName[0]
+
+    if ($type -ne $ExpectedType){
+        throw "Parameter was expecting object of type $ExpectedType but encountered $type instead."
+    }
+}
+
+$PagerDutyCoreClass | Add-Member -MemberType ScriptMethod -Name "VerifyNotNull" -Value {
+    param( 
+        $InputObject
+    )
+
+    if ($InputObject -eq $null){
+        throw [System.NullReferenceException] "Parameter cannot be blank."
+    }
+}
+
+$PagerDutyCoreClass.pstypenames.Insert(0,'PagerDuty.Core')
 
 function Get-PagerDutyCore{
  
@@ -116,7 +165,7 @@ function Get-PagerDutyCore{
         return (Get-Variable -Scope Global -Name 'PagerDutyCore').Value 
     }
  
-    $Global:PagerDutyCore = $PagerDutyCore.psobject.copy()
+    $Global:PagerDutyCore = $PagerDutyCoreClass.psobject.copy()
          
     return $PagerDutyCore
 }
