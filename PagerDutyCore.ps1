@@ -1,17 +1,23 @@
 #Requires -Version 3.0
 
-$PagerDutyCoreClass = New-Object psobject -Property @{
+#Load Supporting Types First
+
+. .\SupplementalTypes\PagerDutyTypes.ps1
+
+Set-Variable -Scope Global -Name PagerDutyCore -Option ReadOnly -Value (New-Object psobject -Property @{
     apiKey = $null
     domain = $null
     authFolder = $env:USERPROFILE + "\Documents\WindowsPowerShell\Modules\PagerDutyAPI"
     authFileName = "authSettings.json"
-}
+    timeZoneDict = $PagerDutyTimeZoneDict
+})
 
-$PagerDutyCoreClass | Add-Member -MemberType ScriptProperty -Name "authFilePath" -Value {
+#AUTHENTICATION
+$PagerDutyCore | Add-Member -MemberType ScriptProperty -Name "authFilePath" -Value {
     return [System.IO.Path]::Combine($this.authFolder, $this.authFileName)
 }
 
-$PagerDutyCoreClass | Add-Member -MemberType ScriptMethod -Name "LoadAuthDetails" -Value {
+$PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "LoadAuthDetails" -Value {
     if (Test-Path $this.authFilePath -PathType Leaf) {
         $json = Get-Content -Raw -Path $this.authFilePath | ConvertFrom-Json
         $this.apiKey = $json.apiKey
@@ -19,12 +25,12 @@ $PagerDutyCoreClass | Add-Member -MemberType ScriptMethod -Name "LoadAuthDetails
     }
 }
 
-$PagerDutyCoreClass | Add-Member -MemberType ScriptMethod -Name "SaveAuthDetails" -Value {
+$PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "SaveAuthDetails" -Value {
     if (-not (Test-Path $this.authFolder)) {New-Item -Path $this.authFolder -ItemType Directory}    
     $this | select apiKey, domain | ConvertTo-Json | Out-File -FilePath $this.authFilePath
 }
 
-$PagerDutyCoreClass | Add-Member -MemberType ScriptMethod -Name "CheckForAuthDetails" -Value {
+$PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "CheckForAuthDetails" -Value {
     if ($this.apiKey -eq $null -OR $this.domain -eq $null) {
         $this.LoadAuthDetails()
     }
@@ -43,23 +49,37 @@ $PagerDutyCoreClass | Add-Member -MemberType ScriptMethod -Name "CheckForAuthDet
     }
 }
 
-$PagerDutyCoreClass | Add-Member -MemberType ScriptMethod -Name "ApiPost" -Value {
-    param([string]$apiPath, [System.Collections.Hashtable]$body)
+
+#API CALLS
+$PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ApiDelete" -Value {
+    param([string]$apiPath, [System.Collections.Hashtable]$body=$null)
     
-    return $this.ApiCallBase($apiPath, [Microsoft.PowerShell.Commands.WebRequestMethod]::Post, $body)
+    return $this.ApiCallBase($apiPath, [Microsoft.PowerShell.Commands.WebRequestMethod]::Delete, $body)
 }
 
-$PagerDutyCoreClass | Add-Member -MemberType ScriptMethod -Name "ApiGet" -Value {
+$PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ApiGet" -Value {
     param([string]$apiPath, [System.Collections.Hashtable]$body, [int]$maxResults = $null, [int]$limit = 100)
 
     return $this.ApiCallBase($apiPath, [Microsoft.PowerShell.Commands.WebRequestMethod]::Get, $body, $maxResults, $limit)
 }
 
-$PagerDutyCoreClass | Add-Member -MemberType ScriptMethod -Name "ApiCallBase" -Value {
+$PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ApiPost" -Value {
+    param([string]$apiPath, [System.Collections.Hashtable]$body)
+    
+    return $this.ApiCallBase($apiPath, [Microsoft.PowerShell.Commands.WebRequestMethod]::Post, $body)
+}
+
+$PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ApiPut" -Value {
+    param([string]$apiPath, [System.Collections.Hashtable]$body)
+    
+    return $this.ApiCallBase($apiPath, [Microsoft.PowerShell.Commands.WebRequestMethod]::Put, $body)
+}
+
+$PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ApiCallBase" -Value {
     param( 
         [string]$apiPath,
         [Microsoft.PowerShell.Commands.WebRequestMethod]$Method,
-        [System.Collections.Hashtable]$body,
+        [System.Collections.Hashtable]$body=$null,
         [int]$maxResults = $null,
         [int]$limit = 100
     )
@@ -136,7 +156,9 @@ $PagerDutyCoreClass | Add-Member -MemberType ScriptMethod -Name "ApiCallBase" -V
     }
 }
 
-$PagerDutyCoreClass | Add-Member -MemberType ScriptMethod -Name "VerifyTypeMatch" -Value {
+
+#VERIFICATION AND ERRORS
+$PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "VerifyTypeMatch" -Value {
     param( 
         $InputObject,
         [string]$ExpectedType
@@ -149,7 +171,7 @@ $PagerDutyCoreClass | Add-Member -MemberType ScriptMethod -Name "VerifyTypeMatch
     }
 }
 
-$PagerDutyCoreClass | Add-Member -MemberType ScriptMethod -Name "VerifyNotNull" -Value {
+$PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "VerifyNotNull" -Value {
     param( 
         $InputObject
     )
@@ -159,18 +181,36 @@ $PagerDutyCoreClass | Add-Member -MemberType ScriptMethod -Name "VerifyNotNull" 
     }
 }
 
-$PagerDutyCoreClass.pstypenames.Insert(0,'PagerDuty.Core')
 
-function Get-PagerDutyCore{
- 
-    if(Get-Variable -Scope Global -Name 'PagerDutyCore' -EA SilentlyContinue){ 
-        return (Get-Variable -Scope Global -Name 'PagerDutyCore').Value 
-    }
- 
-    $Global:PagerDutyCore = $PagerDutyCoreClass.psobject.copy()
-         
-    return $PagerDutyCore
+#TYPE HELPERS
+$PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ConvertTimeZone" -Value {
+    param( 
+        [PagerDuty.TimeZones]$ZoneEnum
+    )
+
+    return $this.timeZoneDict[$ZoneEnum]
 }
+
+$PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ConvertDateTime" -Value {
+    param( 
+        [System.DateTime]$Date
+    )
+    
+    #Make sure whatever local time coming in goes out in zulu time to standardize.
+    return $Date.ToUniversalTime().ToString("yyyy-MM-ddTHH:mmZ")
+}
+
+$PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ConvertBoolean" -Value {
+    param( 
+        [System.Boolean]$Bool
+    )
+    
+    return $Bool.ToString().ToLower()
+}
+
+
+#PSEUDO TYPE
+$PagerDutyCore.pstypenames.Insert(0,'PagerDuty.Core')
 
 . .\Users\Users.ps1
 
