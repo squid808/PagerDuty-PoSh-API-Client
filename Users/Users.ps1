@@ -110,6 +110,10 @@ function Get-PagerDutyUser {
         [Parameter(ParameterSetName='Obj')]
         [Switch]$OnCallStatus,
 
+        #Only retrieve the on-call users, along with the on-call information.
+        [Parameter(ParameterSetName='All')]
+        [Switch]$OnCallOnly,
+
         #Include additional data in results regarding notication rules.
         [Parameter(ParameterSetName='Id')]
         [Parameter(ParameterSetName='Obj')]
@@ -135,14 +139,21 @@ function Get-PagerDutyUser {
 
     if ($PsCmdlet.ParameterSetName -eq "All") {
 
-        $Result = New-Object System.Collections.ArrayList
+        $Uri = "users"
 
-        if ($pscmdlet.ShouldProcess("users")) {
-            $PagerDutyCore.ApiGet("users" + $Additions, @{query=$QueryFilter}, $MaxResults) `
-                | ForEach-Object {$Result.AddRange($_.users)}
-            $Result | ForEach-Object {$_.pstypenames.Insert(0,'PagerDuty.User')}
+        $Results = New-Object System.Collections.ArrayList
+
+        if ($OnCallOnly){
+            $Uri += "/on_call"
+        }
+
+        $Uri += $Additions
+
+        if ($PsCmdlet.ShouldProcess("users")) {
+            $PagerDutyCore.ApiGet($Uri, @{query=$QueryFilter}, $MaxResults) `
+                | ForEach-Object {$Results.AddRange($_.users)}
+            $Results | ForEach-Object {$_.pstypenames.Insert(0,'PagerDuty.User')}
             return $Result
-            
         }
         
     } else {
@@ -160,7 +171,7 @@ function Get-PagerDutyUser {
             $URI = "users/$id" + $Additions
         }
 
-        if ($pscmdlet.ShouldProcess($Id)) {
+        if ($PsCmdlet.ShouldProcess($Id)) {
             $Result = $PagerDutyCore.ApiGet($URI)
             $Result.user.pstypenames.Insert(0,'PagerDuty.User')
             return $result.user
@@ -266,36 +277,35 @@ function Set-PagerDutyUser {
     if ($PsCmdlet.ParameterSetName -eq "Obj"){
         $PagerDutyCore.VerifyTypeMatch($PagerDutyUser, "PagerDuty.User")
         $Id = $PagerDutyUser.id
+        $PagerDutyCore.VerifyNotNull($Id)
     }
 
-    $PagerDutyCore.VerifyNotNull($Id)
-
-    $body = @{}
+    $Body = @{}
 
     if ($Role -ne $null){
-        $body["role"] = $Role.ToString()
+        $Body["role"] = $Role.ToString()
     }
 
     if ($Name -ne $null){
-        $body["name"] = $Name
+        $Body["name"] = $Name
     }
 
     if ($Email -ne $null){
-        $body["email"] = $Email
+        $Body["email"] = $Email
     }
 
     if ($JobTitle -ne $null){
-        $body["job_title"] = $JobTitle
+        $Body["job_title"] = $JobTitle
     }
 
     if ($TimeZone -ne $null){
-        $body["time_zone"] = $PagerDutyCore.ConvertTimeZone($TimeZone)
+        $Body["time_zone"] = $PagerDutyCore.ConvertTimeZone($TimeZone)
     }
 
-    if ($body.Count -eq 0) { throw [System.ArgumentNullException] "Must provide one value to update for the user." }
+    if ($Body.Count -eq 0) { throw [System.ArgumentNullException] "Must provide one value to update for the user." }
 
-    if ($pscmdlet.ShouldProcess($Id)) {
-        $Result = $PagerDutyCore.ApiPut("users/" + $Id, $body)
+    if ($PsCmdlet.ShouldProcess($Id)) {
+        $Result = $PagerDutyCore.ApiPut("users/" + $Id, $Body)
         $Result.user.pstypenames.Insert(0,'PagerDuty.User')
         return $Result.user
     }
@@ -361,41 +371,29 @@ function New-PagerDutyUser {
         #The user id of the user creating the user. This is only needed if you are using token based authentication.
         [string]$RequesterId
     )
-        
-    if ($PsCmdlet.ParameterSetName -eq "Obj"){
-        $PagerDutyCore.VerifyTypeMatch($PagerDutyUser, "PagerDuty.User")
-        $Id = $PagerDutyUser.id
-    }
 
-    $PagerDutyCore.VerifyNotNull($Id)
-
-    $body = @{}
-
-    $body["name"] = $Name
-    $body["email"] = $Email
-
-    if ($body.Count -eq 0) { 
-        throw [System.ArgumentNullException] "Must provide at least name and email for the new user."
-    }
+    $Body = @{}
+    $Body["name"] = $Name
+    $Body["email"] = $Email
 
     if ($Role -ne $null){
-        $body["role"] = $Role.ToString()
+        $Body["role"] = $Role.ToString()
     }
 
     if ($JobTitle -ne $null){
-        $body["job_title"] = $JobTitle
+        $Body["job_title"] = $JobTitle
     }
 
     if ($TimeZone -ne $null){
-        $body["time_zone"] = $PagerDutyCore.ConvertTimeZone($TimeZone)
+        $Body["time_zone"] = $PagerDutyCore.ConvertTimeZone($TimeZone)
     }
 
     if ($RequesterId -ne $null){
-        $body["requester_id"] = $RequesterId
+        $Body["requester_id"] = $RequesterId
     }
 
-    if ($pscmdlet.ShouldProcess($Name)) {
-        $Result = $PagerDutyCore.ApiPost("users/", $body)
+    if ($PsCmdlet.ShouldProcess($Name)) {
+        $Result = $PagerDutyCore.ApiPost("users/", $Body)
         $Result.user.pstypenames.Insert(0,'PagerDuty.User')
         return $Result.user
     }
@@ -461,9 +459,12 @@ function Remove-PagerDutyUser {
 
     $PagerDutyCore.VerifyNotNull($Id)
 
-    if ($pscmdlet.ShouldProcess($Name)) {
+    if ($PsCmdlet.ShouldProcess($Name)) {
         $Result = $PagerDutyCore.ApiDelete("users/$Id")
-        $Result.user.pstypenames.Insert(0,'PagerDuty.User')
-        return $Result.user
+        
+        if ($Result -ne $null) {
+            $Result.Insert(0,'PagerDuty.Error')
+            return $Result.user
+        }
     }
 }
