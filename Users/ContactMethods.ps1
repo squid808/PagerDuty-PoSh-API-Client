@@ -1,6 +1,6 @@
 #TODO: Update Documentation
 
-function Get-ContactMethod {
+function Get-PagerDutyContactMethod {
 [CmdletBinding(DefaultParameterSetName="Id", SupportsShouldProcess=$true, ConfirmImpact="Low")]
     Param(
         #The PagerDuty ID of the user whose contact method you would like to retrieve.
@@ -46,7 +46,7 @@ function Get-ContactMethod {
     }
 }
 
-function Set-ContactMethod {
+function Set-PagerDutyContactMethod {
 [CmdletBinding(DefaultParameterSetName="Id", SupportsShouldProcess=$true, ConfirmImpact="Medium")]
     Param(
         #The PagerDuty ID of the user whose contact method you would like to update.
@@ -120,7 +120,7 @@ function Set-ContactMethod {
     }
 }
 
-function New-ContactMethod {
+function New-PagerDutyContactMethod {
 [CmdletBinding(DefaultParameterSetName="Id", SupportsShouldProcess=$true, ConfirmImpact="Medium")]
     Param(
         #The PagerDuty ID of the user for whom you would like to create a contact method.
@@ -174,7 +174,7 @@ function New-ContactMethod {
     }
 }
 
-function Remove-ContactMethod {
+function Remove-PagerDutyContactMethod {
 [CmdletBinding(DefaultParameterSetName="Id", SupportsShouldProcess=$true, ConfirmImpact="High")]
     Param(
         #The PagerDuty ID of the user whose contact method you would like to delete.

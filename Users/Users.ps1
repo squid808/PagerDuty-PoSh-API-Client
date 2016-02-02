@@ -1,3 +1,5 @@
+#TODO: Add Psuedo-types to nested result objects
+
 <#
 .SYNOPSIS
     Get one or more users from PagerDuty.
@@ -85,8 +87,7 @@ function Get-PagerDutyUser {
 [CmdletBinding(DefaultParameterSetName="Id", SupportsShouldProcess=$true, ConfirmImpact="Low")]
     Param(
         #The PagerDuty ID of the user you would like to retrieve.
-        [Parameter(Mandatory=$true, ParameterSetName='Id', ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$true, ParameterSetName='Id', ValueFromPipelineByPropertyName=$true)]
         [string]$Id,
 
         #A PagerDuty object representing a user.
@@ -94,7 +95,7 @@ function Get-PagerDutyUser {
         $PagerDutyUser,
 
         #Retrieve all users in the domain.
-        [Parameter(ParameterSetName='All')]
+        [Parameter(Mandatory=$true, ParameterSetName='All')]
         [switch]$All,
 
         #Filters the result, showing only the users whose names or email addresses match the query. Does not support wildcards
@@ -141,13 +142,13 @@ function Get-PagerDutyUser {
 
         $Uri = "users"
 
-        $Results = New-Object System.Collections.ArrayList
-
         if ($OnCallOnly){
             $Uri += "/on_call"
         }
 
         $Uri += $Additions
+
+        $Results = New-Object System.Collections.ArrayList
 
         if ($PsCmdlet.ShouldProcess("users")) {
             $PagerDutyCore.ApiGet($Uri, @{query=$QueryFilter}, $MaxResults) `

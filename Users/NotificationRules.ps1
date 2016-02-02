@@ -1,6 +1,6 @@
 #TODO: Update Documentation
 
-function Get-NotificationRule {
+function Get-PagerDutyNotificationRule {
 [CmdletBinding(DefaultParameterSetName="Id", SupportsShouldProcess=$true, ConfirmImpact="Low")]
     Param(
         #The PagerDuty ID of the user whose notification rule you would like to retrieve.
@@ -46,7 +46,7 @@ function Get-NotificationRule {
     }
 }
 
-function Set-NotificationRule {
+function Set-PagerDutyNotificationRule {
 [CmdletBinding(DefaultParameterSetName="Id", SupportsShouldProcess=$true, ConfirmImpact="Medium")]
     Param(
         #The PagerDuty ID of the user whose notification rule you would like to update.
@@ -102,7 +102,7 @@ function Set-NotificationRule {
     }
 }
 
-function New-NotificationRule {
+function New-PagerDutyNotificationRule {
     [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact="Medium")]
     Param(
         #The PagerDuty ID of the user for whom you'd like to create a notification rule.
@@ -132,7 +132,7 @@ function New-NotificationRule {
     }
 }
 
-function Remove-NotificationRule {
+function Remove-PagerDutyNotificationRule {
 [CmdletBinding(DefaultParameterSetName="Id", SupportsShouldProcess=$true, ConfirmImpact="High")]
     Param(
         #The PagerDuty ID of the user whose notification rule you would like to delete.

@@ -215,6 +215,8 @@ $PagerDutyCore.pstypenames.Insert(0,'PagerDuty.Core')
 . .\Users\Users.ps1
 . .\Users\NotificationRules.ps1
 . .\Users\ContactMethods.ps1
+. .\Alerts\Alerts.ps1
+
 
 @"
 Help Template, remove this when the project has been completed.

@@ -1,6 +1,6 @@
 #TODO: Update Documentation
 
-function Get-Alerts {
+function Get-PagerDutyAlert {
 [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact="Low")]
     Param(
         #The start of the date range over which you want to search. The time element is optional.
