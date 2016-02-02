@@ -108,11 +108,11 @@ function Get-PagerDutyUser {
         #Include the user's current on-call status. If the on-call object is an empty array, the user is never on-call. If the start and end of an on-call object are null, then the user is always on-call for an escalation policy level.
         [Parameter(ParameterSetName='Id')]
         [Parameter(ParameterSetName='Obj')]
-        [Switch]$OnCallStatus,
+        [switch]$OnCallStatus,
 
         #Only retrieve the on-call users, along with the on-call information.
         [Parameter(ParameterSetName='All')]
-        [Switch]$OnCallOnly,
+        [switch]$OnCallOnly,
 
         #Include additional data in results regarding notication rules.
         [Parameter(ParameterSetName='Id')]
@@ -277,6 +277,8 @@ function Set-PagerDutyUser {
     if ($PsCmdlet.ParameterSetName -eq "Obj"){
         $PagerDutyCore.VerifyTypeMatch($PagerDutyUser, "PagerDuty.User")
         $Id = $PagerDutyUser.id
+        
+
         $PagerDutyCore.VerifyNotNull($Id)
     }
 
@@ -352,23 +354,27 @@ function New-PagerDutyUser {
 [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact="Medium")]
     Param(
         #The user's role. This can either be admin, user, or limited_user and defaults to user if not specified.
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
         [PagerDuty.RoleTypes]$Role,
 
         #The name of the user.
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
         [string]$Name,
 
         #The email of the user. The newly created user will receive an email asking to confirm the subscription.
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
         [string]$Email,
 
         #The job title of the user.
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
         [string]$JobTitle,
 
         #The time zone the user is in. If not specified, the time zone of the account making the API call will be used.
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
         [PagerDuty.TimeZones]$TimeZone,
 
         #The user id of the user creating the user. This is only needed if you are using token based authentication.
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
         [string]$RequesterId
     )
 

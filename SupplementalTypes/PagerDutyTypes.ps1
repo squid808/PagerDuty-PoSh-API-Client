@@ -11,6 +11,19 @@ Add-Type -TypeDefinition $PagerDutyRoleEnum -Language CSharpVersion3
 
 Remove-Variable PagerDutyRoleEnum
 
+$PagerDutyContactMethodTypeEnum = "
+namespace PagerDuty
+{
+public enum ContactMethodsTypes
+{
+SMS, email, phone
+}}
+"
+
+Add-Type -TypeDefinition $PagerDutyContactMethodTypeEnum -Language CSharpVersion3
+
+Remove-Variable PagerDutyContactMethodTypeEnum
+
 <#
 Define the time zones as an enum with all special characters removed so they
 can be called as an argument in Cmdlets where the user can choose from a
