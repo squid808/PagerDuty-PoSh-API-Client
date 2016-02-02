@@ -120,9 +120,10 @@ function New-NotificationRule {
 
     $Uri = "users/$UserId/notification_rules"
 
-    $Body = @{}
-    $Body["start_delay_in_minutes"] = $StartDelayInMinutes.ToString()
-    $Body["contact_method_id"] = $ContactMethodId
+    $Body = @{
+        start_delay_in_minutes = $StartDelayInMinutes.ToString()
+        contact_method_id = $ContactMethodId
+    }
 
     if ($PsCmdlet.ShouldProcess($Id)) {
         $Result = $PagerDutyCore.ApiPost($Uri, $Body)

@@ -378,9 +378,10 @@ function New-PagerDutyUser {
         [string]$RequesterId
     )
 
-    $Body = @{}
-    $Body["name"] = $Name
-    $Body["email"] = $Email
+    $Body = @{
+        name = $Name
+        email = $Email
+    }
 
     if ($Role -ne $null){
         $Body["role"] = $Role.ToString()

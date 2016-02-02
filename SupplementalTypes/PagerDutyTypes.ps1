@@ -24,6 +24,19 @@ Add-Type -TypeDefinition $PagerDutyContactMethodTypeEnum -Language CSharpVersion
 
 Remove-Variable PagerDutyContactMethodTypeEnum
 
+$PagerDutyAlertFilterTypeEnum = "
+namespace PagerDuty
+{
+public enum AlertFilterTypes
+{
+SMS, Email, Phone, Push
+}}
+"
+
+Add-Type -TypeDefinition $PagerDutyAlertFilterTypeEnum -Language CSharpVersion3
+
+Remove-Variable PagerDutyAlertFilterTypeEnum
+
 <#
 Define the time zones as an enum with all special characters removed so they
 can be called as an argument in Cmdlets where the user can choose from a

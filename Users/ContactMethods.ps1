@@ -150,9 +150,10 @@ function New-ContactMethod {
     
     $Uri = "users/$UserId/contact_methods"
 
-    $Body = @{}
-    $Body["type"] = $Type.ToString()
-    $Body["address"] = $Address
+    $Body = @{
+        type = $Type.ToString()
+        address = $Address
+    }
 
     if ($CountryCode -ne $Null) {
         $Body["country_code"] = $CountryCode.ToString()
