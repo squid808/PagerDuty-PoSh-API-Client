@@ -8,15 +8,20 @@ function Get-PagerDutyEscalationPolicy {
         [Parameter(Mandatory=$true, ParameterSetName='Id', ValueFromPipelineByPropertyName=$true)]
         [string]$Id,
 
-        #A PagerDuty object representing an escalation policy.
-        [Parameter(Mandatory=$true, ParameterSetName='Obj', ValueFromPipeline=$true)]
-        $PagerDutyEscalationPolicy,
-
         #Retrieve all escalation policies.
         [Parameter(Mandatory=$true, ParameterSetName='All')]
         [switch]$All,
 
+        #List all the existing escalation policies with currently on-call users.
+        [Parameter(Mandatory=$true, ParameterSetName='OnCall')]
+        [switch]$OnCallOnly,
+
+        #A PagerDuty object representing an escalation policy.
+        [Parameter(Mandatory=$true, ParameterSetName='Obj', ValueFromPipeline=$true)]
+        $PagerDutyEscalationPolicy,
+
         #Filters the result, showing only the escalation policies whose names match the query.
+        [Parameter(ParameterSetName='OnCall')]
         [Parameter(ParameterSetName='All')]
         [string]$Query,
 
@@ -35,7 +40,24 @@ function Get-PagerDutyEscalationPolicy {
 
     $Uri = "escalation_policies"
 
-    if ($PsCmdlet.ParameterSetName -eq "All") {
+    if ($PsCmdlet.ParameterSetName -eq "OnCall") {
+        
+        $Uri += "/on_call"
+
+        $Body = @{}
+
+        if ($Query -ne $Null) {
+            $Body['query'] = $Query
+        }
+        
+        if ($PsCmdlet.ShouldProcess("get on-call escalation policies")) {
+            $PagerDutyCore.ApiGet($Uri, $Body, $MaxResults) `
+                | ForEach-Object {$Results.AddRange($_.escalation_policies)}
+            $Results | ForEach-Object {$_.pstypenames.Insert(0,'PagerDuty.EscalationPolicy')}
+            return $Result
+        }
+        
+    } elseif ($PsCmdlet.ParameterSetName -eq "All") {
 
         if ($IncludeTeamsInResponse) {
             $Uri += "?include[]=teams"
@@ -53,7 +75,7 @@ function Get-PagerDutyEscalationPolicy {
 
         $Results = New-Object System.Collections.ArrayList
 
-        if ($PsCmdlet.ShouldProcess("escalation policies")) {
+        if ($PsCmdlet.ShouldProcess("get escalation policies")) {
             $PagerDutyCore.ApiGet($Uri, $Body, $MaxResults) `
                 | ForEach-Object {$Results.AddRange($_.escalation_policies)}
             $Results | ForEach-Object {$_.pstypenames.Insert(0,'PagerDuty.EscalationPolicy')}
@@ -71,7 +93,7 @@ function Get-PagerDutyEscalationPolicy {
 
         $Uri += "/$Id"
 
-        if ($PsCmdlet.ShouldProcess($Id)) {
+        if ($PsCmdlet.ShouldProcess("get escalation policies")) {
             $Result = $PagerDutyCore.ApiGet($Uri)
             $Result.escalation_policy.pstypenames.Insert(0,'PagerDuty.User')
             return $result.escalation_policy
