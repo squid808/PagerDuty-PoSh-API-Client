@@ -37,6 +37,21 @@ Add-Type -TypeDefinition $PagerDutyAlertFilterTypeEnum -Language CSharpVersion3
 
 Remove-Variable PagerDutyAlertFilterTypeEnum
 
+$PagerDutyEscalationRuleTargetTypeEnum = "
+namespace PagerDuty
+{
+public enum EscalationRuleTargetType
+{
+schedule, user
+}}
+"
+
+Add-Type -TypeDefinition $PagerDutyEscalationRuleTargetTypeEnum -Language CSharpVersion3
+
+Remove-Variable PagerDutyEscalationRuleTargetTypeEnum
+
+
+
 <#
 Define the time zones as an enum with all special characters removed so they
 can be called as an argument in Cmdlets where the user can choose from a

@@ -77,6 +77,155 @@ function Get-PagerDutyEscalationPolicy {
             return $result.escalation_policy
         }
     }
+}
 
+function Set-PagerDutyEscalationPolicy {
+[CmdletBinding(DefaultParameterSetName="Id", SupportsShouldProcess=$true, ConfirmImpact="Medium")]
+    Param(
+        #The ID of the escalation policy.
+        [Parameter(Mandatory=$true, ParameterSetName='Id', ValueFromPipelineByPropertyName=$true)]
+        [string]$Id,
 
+        #A PagerDuty object representing a notification rule to delete.
+        [Parameter(Mandatory=$true, ParameterSetName='Obj', ValueFromPipeline=$true)]
+        $PagerDutyEscalationPolicy,
+
+        #The name of the escalation policy.
+        [Parameter(ParameterSetName='Id', Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ParameterSetName='Obj')]
+        [string]$Name,
+
+        #Whether or not to allow this policy to repeat its escalation rules after the last rule is finished.
+        [Parameter(ParameterSetName='Id', ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ParameterSetName='Obj')]
+        [bool]$RepeatEnabled,
+
+        #The number of times to loop over the set of rules in this escalation policy.
+        [Parameter(ParameterSetName='Id',ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ParameterSetName='Obj')]
+        [int]$NumLoops,
+
+        #The escalation rules for this policy. There must be at least one rule to create a new escalation policy.
+        [Parameter(ParameterSetName='Id')]
+        [Parameter(ParameterSetName='Obj')]
+        $EscalationRules
+    )
+
+    if ($PsCmdlet.ParameterSetName -eq "Obj"){
+        $PagerDutyCore.VerifyTypeMatch($PagerDutyEscalationPolicy, "PagerDuty.NotificationRule")
+        $Id = $PagerDutyEscalationPolicy.id
+        $Name = $PagerDutyEscalationPolicy.name
+        $NumLoops = $PagerDutyEscalationPolicy.num_loops
+        $EscalationRules = $PagerDutyEscalationPolicy.escalation_rules
+    }
+
+    $Body = @{}
+
+    if ($Name -ne $null) {
+        $Body["name"] = $Name
+    }
+
+    if ($RepeatEnabled -ne $null) {
+        $Body["repeat_enabled"] = $PagerDutyCore.ConvertBoolean($RepeatEnabled)
+    }
+
+    if ($NumLoops -ne $null) {
+        $Body["num_loops"] = $NumLoops.ToString()
+    }
+
+    if ($EscalationRules -ne $null) {
+        if ($EscalationRules -isnot [System.Collections.ICollection]){
+            $EscalationRules = @($EscalationRules)
+        }
+
+        #TODO: Decide if this needs to be type checked? Would prevent custom objects and hashtables.
+        $EscalationRules | Foreach-Object {$PagerDutyCore.VerifyTypeMatch($_, 'PagerDuty.EscalationRule')}
+
+        $Body["escalation_rules"] = $EscalationRules | ConvertTo-Json -Depth 5 -Compress
+    }
+
+    $Uri = "escalation_policies/"
+
+    if ($PsCmdlet.ShouldProcess("New Escalation Policy")) {
+        $Result = $PagerDutyCore.ApiPut($Uri, $Body)
+        $Result.escalation_policy.Insert(0,'PagerDuty.EscalationPolicy')
+        return $Result.escalation_policy
+    }
+}
+
+function New-PagerDutyEscalationPolicy {
+[CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact="Medium")]
+    Param(
+        #The name of the escalation policy.
+        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
+        [string]$Name,
+
+        #Whether or not to allow this policy to repeat its escalation rules after the last rule is finished. Defaults to false.
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [bool]$RepeatEnabled,
+
+        #The number of times to loop over the set of rules in this escalation policy.
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [int]$NumLoops,
+
+        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
+        #The escalation rules for this policy. There must be at least one rule to create a new escalation policy.
+        $EscalationRules
+    )
+
+    $Body = @{
+        name = $Name
+    }
+
+    if ($EscalationRules -isnot [System.Collections.ICollection]){
+        $EscalationRules = @($EscalationRules)
+    }
+
+    #TODO: Decide if this needs to be type checked? Would prevent custom objects and hashtables.
+    $EscalationRules | Foreach-Object {$PagerDutyCore.VerifyTypeMatch($_, 'PagerDuty.EscalationRule')}
+
+    $Body["escalation_rules"] = $EscalationRules | ConvertTo-Json -Depth 5 -Compress
+
+    if ($RepeatEnabled -ne $null) {
+        $Body["repeat_enabled"] = $PagerDutyCore.ConvertBoolean($RepeatEnabled)
+    }
+
+    if ($NumLoops -ne $null) {
+        $Body["num_loops"] = $NumLoops.ToString()
+    }
+
+    if ($PsCmdlet.ShouldProcess("New Escalation Policy")) {
+        $Result = $PagerDutyCore.ApiPost("escalation_policies", $Body)
+        $Result.escalation_policy.Insert(0,'PagerDuty.EscalationPolicy')
+        return $Result.escalation_policy
+    }
+}
+
+function Remove-PagerDutyEscalationPolicy {
+[CmdletBinding(DefaultParameterSetName="Id", SupportsShouldProcess=$true, ConfirmImpact="High")]
+    Param(
+        #The ID of the escalation policy.
+        [Parameter(Mandatory=$true, ParameterSetName='Id', ValueFromPipelineByPropertyName=$true)]
+        [string]$Id,
+
+        #A PagerDuty object representing an escalation policy to delete.
+        [Parameter(Mandatory=$true, ParameterSetName='Obj', ValueFromPipeline=$true)]
+        $PagerDutyEscalationPolicy
+    )
+
+    if ($PsCmdlet.ParameterSetName -eq "Obj"){
+        $PagerDutyCore.VerifyTypeMatch($PagerDutyEscalationPolicy, "PagerDuty.EscalationPolicy")
+        $Id = $PagerDutyEscalationPolicy.id
+    }
+
+    $PagerDutyCore.VerifyNotNull($Id)
+
+    $Uri = "escalation_policies/$Id"
+
+    if ($PsCmdlet.ShouldProcess("Remove Escalation Policy")) {
+        $Result = $PagerDutyCore.ApiDelete($Uri)
+        if ($Result -ne $null) {
+            return $Result
+        }
+    }
 }

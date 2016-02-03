@@ -8,7 +8,7 @@ function Get-PagerDutyContactMethod {
         [string]$UserId,
 
         #The PagerDuty ID of a specific contact method you would like to retrieve.
-        [Parameter(Mandatory=$false, ParameterSetName='Id', ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ParameterSetName='Id', ValueFromPipelineByPropertyName=$true)]
         [string]$ContactMethodId,
 
         #A PagerDuty object representing a contact method.
