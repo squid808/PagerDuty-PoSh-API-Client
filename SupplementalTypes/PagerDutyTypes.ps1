@@ -1,4 +1,32 @@
-﻿$PagerDutyIncidentSortByEnum = "
+﻿$PagerDutyUserIncludeEnum = "
+namespace PagerDuty
+{
+[System.FlagsAttribute]
+public enum UserIncludes
+{
+contact_methods=1, notification_rules=2
+}}
+"
+
+Add-Type -TypeDefinition $PagerDutyUserIncludeEnum -Language CSharpVersion3
+
+Remove-Variable PagerDutyUserIncludeEnum
+
+$PagerDutyLogEntryIncludeEnum = "
+namespace PagerDuty
+{
+[System.FlagsAttribute]
+public enum LogEntryIncludes
+{
+channel=1, incident=2, service=4
+}}
+"
+
+Add-Type -TypeDefinition $PagerDutyLogEntryIncludeEnum -Language CSharpVersion3
+
+Remove-Variable PagerDutyLogEntryIncludeEnum
+
+$PagerDutyIncidentSortByEnum = "
 namespace PagerDuty
 {
 [System.FlagsAttribute]

@@ -44,7 +44,7 @@
 
 
 .EXAMPLE
-    Get-PagerDutyUser -Id "ABCDEF2" -IncludeNotificationRules -IncludeContactMethods
+    Get-PagerDutyUser -Id "ABCDEF2" -Include contact_methods,notification_rules
 
     RESULTS
 
@@ -115,27 +115,21 @@ function Get-PagerDutyUser {
         [Parameter(ParameterSetName='All')]
         [switch]$OnCallOnly,
 
-        #Include additional data in results regarding notication rules.
+        #Array of additional details to include. This API accepts contact_methods, and notification_rules.
         [Parameter(ParameterSetName='Id')]
         [Parameter(ParameterSetName='Obj')]
         [Parameter(ParameterSetName='All')]
-        [switch]$IncludeNotificationRules,
-
-        #Include additional data in results regarding contact methods.
-        [Parameter(ParameterSetName='Id')]
-        [Parameter(ParameterSetName='Obj')]
-        [Parameter(ParameterSetName='All')]
-        [switch]$IncludeContactMethods
+        [PagerDuty.UserIncludes]$Include
     )
 
     $Additions = ""
 
-    if ($IncludeNotificationRules -AND $IncludeContactMethods){
-        $Additions = "?include[]=contact_methods&include[]=notification_rules"
-    } elseif ($IncludeNotificationRules) {
-        $Additions = "?include[]=notification_rules"
-    } elseif ($IncludeContactMethods) {
-        $Additions = "?include[]=contact_methods"
+    if ($Include){
+        switch ($Include.value__) {
+            1 {$Additions = "?include[]=contact_methods"}
+            2 {$Additions = "?include[]=notification_rules"}
+            3 {$Additions = "?include[]=contact_methods&include[]=notification_rules"}
+        }
     }
 
     if ($PsCmdlet.ParameterSetName -eq "All") {

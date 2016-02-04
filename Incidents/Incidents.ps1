@@ -173,7 +173,7 @@ function Get-PagerDutyIncident {
 }
 
 function Set-PagerDutyIncident {
-[CmdletBinding(DefaultParameterSetName="update", SupportsShouldProcess=$true, ConfirmImpact="Low")]
+[CmdletBinding(DefaultParameterSetName="update", SupportsShouldProcess=$true, ConfirmImpact="Medium")]
     Param(
         #One or more incidents, including the parameters to update.
         [Parameter(Mandatory=$true, ParameterSetName="update")]
@@ -294,8 +294,4 @@ function New-PagerDutyIncidentObject {
     $Body.pstypenames.Insert(0,'PagerDuty.Incident')
 
     return $Body
-}
-
-function Remove-PagerDutyIncident {
-
 }

@@ -220,6 +220,7 @@ $PagerDutyCore.pstypenames.Insert(0,'PagerDuty.Core')
 . .\EscalationPolicies\EscalationRules.ps1
 . .\Incidents\Incidents.ps1
 . .\Incidents\Notes.ps1
+. .\LogEntries\LogEntries.ps1
 
 
 @"
