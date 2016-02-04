@@ -46,7 +46,7 @@ function Get-PagerDutyEscalationPolicy {
 
         $Body = @{}
 
-        if ($Query -ne $Null) {
+        if ($Query) {
             $Body['query'] = $Query
         }
         
@@ -54,7 +54,7 @@ function Get-PagerDutyEscalationPolicy {
             $PagerDutyCore.ApiGet($Uri, $Body, $MaxResults) `
                 | ForEach-Object {$Results.AddRange($_.escalation_policies)}
             $Results | ForEach-Object {$_.pstypenames.Insert(0,'PagerDuty.EscalationPolicy')}
-            return $Result
+            return $Results
         }
         
     } elseif ($PsCmdlet.ParameterSetName -eq "All") {
@@ -65,11 +65,11 @@ function Get-PagerDutyEscalationPolicy {
 
         $Body = @{}
 
-        if ($Query -ne $Null) {
+        if ($Query) {
             $Body['query'] = $Query
         }
 
-        if ($Teams -ne $Null) {
+        if ($Teams) {
             $Body['teams'] = $Teams
         }
 
@@ -79,7 +79,7 @@ function Get-PagerDutyEscalationPolicy {
             $PagerDutyCore.ApiGet($Uri, $Body, $MaxResults) `
                 | ForEach-Object {$Results.AddRange($_.escalation_policies)}
             $Results | ForEach-Object {$_.pstypenames.Insert(0,'PagerDuty.EscalationPolicy')}
-            return $Result
+            return $Results
         }
         
     } else {
@@ -96,7 +96,7 @@ function Get-PagerDutyEscalationPolicy {
         if ($PsCmdlet.ShouldProcess("get escalation policies")) {
             $Result = $PagerDutyCore.ApiGet($Uri)
             $Result.escalation_policy.pstypenames.Insert(0,'PagerDuty.User')
-            return $result.escalation_policy
+            return $Result.escalation_policy
         }
     }
 }
@@ -143,19 +143,19 @@ function Set-PagerDutyEscalationPolicy {
 
     $Body = @{}
 
-    if ($Name -ne $null) {
+    if ($Name) {
         $Body["name"] = $Name
     }
 
-    if ($RepeatEnabled -ne $null) {
+    if ($RepeatEnabled) {
         $Body["repeat_enabled"] = $PagerDutyCore.ConvertBoolean($RepeatEnabled)
     }
 
-    if ($NumLoops -ne $null) {
+    if ($NumLoops) {
         $Body["num_loops"] = $NumLoops.ToString()
     }
 
-    if ($EscalationRules -ne $null) {
+    if ($EscalationRules) {
         if ($EscalationRules -isnot [System.Collections.ICollection]){
             $EscalationRules = @($EscalationRules)
         }
@@ -208,11 +208,11 @@ function New-PagerDutyEscalationPolicy {
 
     $Body["escalation_rules"] = $EscalationRules | ConvertTo-Json -Depth 5 -Compress
 
-    if ($RepeatEnabled -ne $null) {
+    if ($RepeatEnabled) {
         $Body["repeat_enabled"] = $PagerDutyCore.ConvertBoolean($RepeatEnabled)
     }
 
-    if ($NumLoops -ne $null) {
+    if ($NumLoops) {
         $Body["num_loops"] = $NumLoops.ToString()
     }
 
@@ -246,8 +246,6 @@ function Remove-PagerDutyEscalationPolicy {
 
     if ($PsCmdlet.ShouldProcess("Remove Escalation Policy")) {
         $Result = $PagerDutyCore.ApiDelete($Uri)
-        if ($Result -ne $null) {
-            return $Result
-        }
+        return $Result
     }
 }

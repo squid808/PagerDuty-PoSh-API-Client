@@ -27,7 +27,7 @@ function Get-PagerDutyContactMethod {
 
     $Uri = "users/$UserId/contact_methods"
 
-    if ($ContactMethodId -ne $null) {
+    if ($ContactMethodId) {
         $Uri += "/$ContactMethodId"
     }
 
@@ -95,19 +95,19 @@ function Set-PagerDutyContactMethod {
 
     $Body = @{}
 
-    if ($Address -ne $Null) {
+    if ($Address) {
         $Body["address"] = $Address
     }
 
-    if ($CountryCode -ne $Null) {
+    if ($CountryCode) {
         $Body["country_code"] = $CountryCode.ToString()
     }
 
-    if ($Label -ne $Null) {
+    if ($Label) {
         $Body["label"] = $Label
     }
 
-    if ($SendShortEmail -ne $Null) {
+    if ($SendShortEmail) {
         $Body["send_short_email"] = $PagerDutyCore.ConvertBoolean($SendShortEmail)
     }
 
@@ -155,15 +155,15 @@ function New-PagerDutyContactMethod {
         address = $Address
     }
 
-    if ($CountryCode -ne $Null) {
+    if ($CountryCode) {
         $Body["country_code"] = $CountryCode.ToString()
     }
 
-    if ($Label -ne $Null) {
+    if ($Label) {
         $Body["label"] = $Label
     }
 
-    if ($SendShortEmail -ne $Null) {
+    if ($SendShortEmail) {
         $Body["send_short_email"] = $PagerDutyCore.ConvertBoolean($SendShortEmail)
     }
 
@@ -200,12 +200,7 @@ function Remove-PagerDutyContactMethod {
     $PagerDutyCore.VerifyNotNull($ContactMethodId)
 
     if ($PsCmdlet.ShouldProcess($UserId)) {
-
         $Result = $PagerDutyCore.ApiDelete("users/$UserId/contact_methods/$NotificationRuleId")
-        
-        if ($Result -ne $null) {
-            #No Result Expected
-            return $Result.user
-        }
+		return $Result.user
     }
 }

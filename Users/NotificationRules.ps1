@@ -27,7 +27,7 @@ function Get-PagerDutyNotificationRule {
 
     $Uri = "users/$UserId/notification_rules"
 
-    if ($NotificationRuleId -ne $null) {
+    if ($NotificationRuleId) {
         $Uri += "/$NotificationRuleId"
     }
 
@@ -85,11 +85,11 @@ function Set-PagerDutyNotificationRule {
 
     $Body = @{}
 
-    if ($StartDelayInMinutes -ne $Null) {
+    if ($StartDelayInMinutes) {
         $Body["start_delay_in_minutes"] = $StartDelayInMinutes.ToString()
     }
 
-    if ($ContactMethodId -ne $Null) {
+    if ($ContactMethodId) {
         $Body["contact_method_id"] = $ContactMethodId
     }
 
@@ -160,10 +160,6 @@ function Remove-PagerDutyNotificationRule {
     if ($PsCmdlet.ShouldProcess($UserId)) {
 
         $Result = $PagerDutyCore.ApiDelete("users/$UserId/notification_rules/$NotificationRuleId")
-        
-        if ($Result -ne $null) {
-            #No Result Expected
-            return $Result
-        }
+		return $Result
     }
 }

@@ -154,7 +154,7 @@ function Get-PagerDutyUser {
             $PagerDutyCore.ApiGet($Uri, @{query=$QueryFilter}, $MaxResults) `
                 | ForEach-Object {$Results.AddRange($_.users)}
             $Results | ForEach-Object {$_.pstypenames.Insert(0,'PagerDuty.User')}
-            return $Result
+            return $Results
         }
         
     } else {
@@ -279,29 +279,28 @@ function Set-PagerDutyUser {
         $PagerDutyCore.VerifyTypeMatch($PagerDutyUser, "PagerDuty.User")
         $Id = $PagerDutyUser.id
         
-
         $PagerDutyCore.VerifyNotNull($Id)
     }
 
     $Body = @{}
 
-    if ($Role -ne $null){
+    if ($Role){
         $Body["role"] = $Role.ToString()
     }
 
-    if ($Name -ne $null){
+    if ($Name){
         $Body["name"] = $Name
     }
 
-    if ($Email -ne $null){
+    if ($Email){
         $Body["email"] = $Email
     }
 
-    if ($JobTitle -ne $null){
+    if ($JobTitle){
         $Body["job_title"] = $JobTitle
     }
 
-    if ($TimeZone -ne $null){
+    if ($TimeZone){
         $Body["time_zone"] = $PagerDutyCore.ConvertTimeZone($TimeZone)
     }
 
@@ -384,19 +383,19 @@ function New-PagerDutyUser {
         email = $Email
     }
 
-    if ($Role -ne $null){
+    if ($Role){
         $Body["role"] = $Role.ToString()
     }
 
-    if ($JobTitle -ne $null){
+    if ($JobTitle){
         $Body["job_title"] = $JobTitle
     }
 
-    if ($TimeZone -ne $null){
+    if ($TimeZone){
         $Body["time_zone"] = $PagerDutyCore.ConvertTimeZone($TimeZone)
     }
 
-    if ($RequesterId -ne $null){
+    if ($RequesterId){
         $Body["requester_id"] = $RequesterId
     }
 
@@ -469,10 +468,6 @@ function Remove-PagerDutyUser {
 
     if ($PsCmdlet.ShouldProcess($Name)) {
         $Result = $PagerDutyCore.ApiDelete("users/$Id")
-        
-        if ($Result -ne $null) {
-            $Result.Insert(0,'PagerDuty.Error')
-            return $Result.user
-        }
+		return $Result.user
     }
 }

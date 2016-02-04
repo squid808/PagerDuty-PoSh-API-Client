@@ -29,11 +29,11 @@ function Get-PagerDutyAlert {
         until=$PagerDutyCore.ConvertDateTime($Until)
     }
 
-    if ($FilterType -ne $null) {
+    if ($FilterType) {
         $Body["filter[type]"] = $FilterType.ToString()
     }
 
-    if ($FilterType -ne $null) {
+    if ($FilterType) {
         $Body["time_zone"] = $PagerDutyCore.ConvertTimeZone($TimeZone)
     }
 
@@ -43,6 +43,6 @@ function Get-PagerDutyAlert {
         $PagerDutyCore.ApiGet("alerts", $Body, $MaxResults) `
             | ForEach-Object {$Results.AddRange($_.alerts)}
         $Results | ForEach-Object {$_.pstypenames.Insert(0,'PagerDuty.Alert')}
-        return $Result
+        return $Results
     }
 }

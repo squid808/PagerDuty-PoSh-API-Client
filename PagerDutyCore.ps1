@@ -100,11 +100,11 @@ $PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ApiCallBase" -Value 
         "offset"=0
     }
 
-    if ($bodyAdditions -ne $null -AND $bodyAdditions.Count -gt 0){
+    if ($bodyAdditions -AND $bodyAdditions.Count -gt 0){
         $bodyAdditions.Keys | % {$body.Add($_, $bodyAdditions[$_])}
     }
 
-    if ($maxResults -ne $null -AND $maxResults -gt 0 -AND $maxResults -lt $limit){
+    if ($maxResults -AND $maxResults -gt 0 -AND $maxResults -lt $limit){
         $body["limit"] = $maxResults
     }
 
@@ -122,7 +122,7 @@ $PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ApiCallBase" -Value 
 
         do {
 
-            if ($maxResults -ne $null -AND $maxResults -gt 0){
+            if ($maxResults -AND $maxResults -gt 0){
                 if (($results.offset + $results.limit) -ge $maxResults) {
                     break
                 } else {
@@ -140,7 +140,7 @@ $PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ApiCallBase" -Value 
 
             $body["offset"]=($results.offset + $limit)
 
-            if ($maxResults -ne $null -AND $maxResults -gt 0 -AND $maxResults -lt ($collection.Count + $limit)){
+            if ($maxResults -AND $maxResults -gt 0 -AND $maxResults -lt ($collection.Count + $limit)){
                 $body["limit"] = ($maxResults - $collection.Count)
             }
 
@@ -216,6 +216,10 @@ $PagerDutyCore.pstypenames.Insert(0,'PagerDuty.Core')
 . .\Users\NotificationRules.ps1
 . .\Users\ContactMethods.ps1
 . .\Alerts\Alerts.ps1
+. .\EscalationPolicies\EscalationPolicies.ps1
+. .\EscalationPolicies\EscalationRules.ps1
+. .\Incidents\Incidents.ps1
+. .\Incidents\Notes.ps1
 
 
 @"

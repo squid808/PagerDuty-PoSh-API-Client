@@ -14,7 +14,7 @@ function Get-PagerDutyEscalationRule {
 
     $Uri = "escalation_policies/$EscalationPolicyId/escalation_rules"
 
-    if ($EscalationRuleId -ne $null) {
+    if ($EscalationRuleId) {
         $Uri += "/$EscalationRuleId"
     }
 
@@ -81,11 +81,11 @@ function Set-PagerDutyEscalationRule {
 
         $Body = @{}
 
-        if ($EscalationDelayInMinutes -ne $null) {
+        if ($EscalationDelayInMinutes) {
             $Body["escalation_delay_in_minutes"] = $EscalationDelayInMinutes.ToString()
         }
 
-        if ($Targets -ne $null) {
+        if ($Targets) {
             if ($Targets -isnot [System.Collections.ICollection]){
                 $Targets = @($Targets)
             }
@@ -165,7 +165,7 @@ function New-PagerDutyEscalationRuleObject {
     #TODO: Decide if this needs to be type checked? Would prevent custom objects and hashtables.
     $Targets | Foreach-Object {$PagerDutyCore.VerifyTypeMatch($_, 'PagerDuty.EscalationRuleTarget')}
 
-    if ($Id -ne $Null) {
+    if ($Id) {
         $Result = New-Object psobject -Property @{
             Id = $Id
             escalation_delay_in_minutes = $EscalationDelayInMinutes.ToString()
@@ -236,8 +236,6 @@ function Remove-PagerDutyEscalationRule {
 
     if ($PsCmdlet.ShouldProcess("Remove Escalation Rule")) {
         $Result = $PagerDutyCore.ApiDelete($Uri)
-        if ($Result -ne $null) {
-            return $Result
-        }
+        return $Result
     }
 }

@@ -1,4 +1,32 @@
-﻿$PagerDutyRoleEnum = "
+﻿$PagerDutyIncidentSortByEnum = "
+namespace PagerDuty
+{
+[System.FlagsAttribute]
+public enum IncidentSortBy
+{
+incident_number=1, created_on=2, resolved_on=4, urgency=8
+}}
+"
+
+Add-Type -TypeDefinition $PagerDutyIncidentSortByEnum -Language CSharpVersion3
+
+Remove-Variable PagerDutyIncidentSortByEnum
+
+$PagerDutyIncidentStatusEnum = "
+namespace PagerDuty
+{
+[System.FlagsAttribute]
+public enum IncidentStatusTypes
+{
+triggered=1, acknowledged=2, resolved=4
+}}
+"
+
+Add-Type -TypeDefinition $PagerDutyIncidentStatusEnum -Language CSharpVersion3
+
+Remove-Variable PagerDutyIncidentStatusEnum
+
+$PagerDutyRoleEnum = "
 namespace PagerDuty
 {
 public enum RoleTypes
