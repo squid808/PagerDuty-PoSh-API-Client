@@ -1,6 +1,7 @@
 #Requires -Version 3.0
 
 #Load Supporting Types First
+#TODO: Remove object variables -it was a silly idea.
 
 . .\SupplementalTypes\PagerDutyTypes.ps1
 
@@ -208,8 +209,6 @@ $PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ConvertBoolean" -Val
     return $Bool.ToString().ToLower()
 }
 
-
-#PSEUDO TYPE
 $PagerDutyCore.pstypenames.Insert(0,'PagerDuty.Core')
 
 . .\Users\Users.ps1
@@ -221,6 +220,7 @@ $PagerDutyCore.pstypenames.Insert(0,'PagerDuty.Core')
 . .\Incidents\Incidents.ps1
 . .\Incidents\Notes.ps1
 . .\LogEntries\LogEntries.ps1
+. .\MaintenanceWindows\MaintenanceWindows.ps1
 
 
 @"

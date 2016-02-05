@@ -90,10 +90,6 @@ function Get-PagerDutyUser {
         [Parameter(Mandatory=$true, ParameterSetName='Id', ValueFromPipelineByPropertyName=$true)]
         [string]$Id,
 
-        #A PagerDuty object representing a user.
-        [Parameter(Mandatory=$true, ParameterSetName='Obj', ValueFromPipeline=$true)]
-        $PagerDutyUser,
-
         #Retrieve all users in the domain.
         [Parameter(Mandatory=$true, ParameterSetName='All')]
         [switch]$All,
@@ -108,7 +104,6 @@ function Get-PagerDutyUser {
 
         #Include the user's current on-call status. If the on-call object is an empty array, the user is never on-call. If the start and end of an on-call object are null, then the user is always on-call for an escalation policy level.
         [Parameter(ParameterSetName='Id')]
-        [Parameter(ParameterSetName='Obj')]
         [switch]$OnCallStatus,
 
         #Only retrieve the on-call users, along with the on-call information.
@@ -117,7 +112,6 @@ function Get-PagerDutyUser {
 
         #Array of additional details to include. This API accepts contact_methods, and notification_rules.
         [Parameter(ParameterSetName='Id')]
-        [Parameter(ParameterSetName='Obj')]
         [Parameter(ParameterSetName='All')]
         [PagerDuty.UserIncludes]$Include
     )
@@ -152,13 +146,6 @@ function Get-PagerDutyUser {
         }
         
     } else {
-
-        if ($PsCmdlet.ParameterSetName -eq "Obj"){
-            $PagerDutyCore.VerifyTypeMatch($PagerDutyUser, "PagerDuty.User")
-            $Id = $PagerDutyUser.id
-        }
-            
-        $PagerDutyCore.VerifyNotNull($Id)
 
         if ($OnCallStatus) {
             $URI = "users/$id/on_call" + $Additions
@@ -232,49 +219,34 @@ function Get-PagerDutyUser {
     https://github.com/robcerda60/PagerDuty-PoSh-API-Client
 #>
 function Set-PagerDutyUser {
-[CmdletBinding(DefaultParameterSetName="Id", SupportsShouldProcess=$true, ConfirmImpact="Medium")]
+[CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact="Medium")]
     Param(
         #The PagerDuty ID of the user you would like to retrieve.
-        [Parameter(Mandatory=$true, ParameterSetName='Id', ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
         [string]$Id,
 
-        #A PagerDuty object representing a user.
-        [Parameter(Mandatory=$true,ParameterSetName='Obj', ValueFromPipeline=$true)]
-        $PagerDutyUser,
-
         #The user's role. This can either be admin, user, or limited_user.
-        [Parameter(ParameterSetName='Id')]
-        [Parameter(ParameterSetName='Obj')]
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
         [PagerDuty.RoleTypes]$Role,
 
         #The name of the user.
-        [Parameter(ParameterSetName='Id')]
-        [Parameter(ParameterSetName='Obj')]
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
         [string]$Name,
 
         #The email of the user.
-        [Parameter(ParameterSetName='Id')]
-        [Parameter(ParameterSetName='Obj')]
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
         [string]$Email,
 
         #The job title of the user.
-        [Parameter(ParameterSetName='Id')]
-        [Parameter(ParameterSetName='Obj')]
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
         [string]$JobTitle,
 
         #The time zone the user is in.
-        [Parameter(ParameterSetName='Id')]
-        [Parameter(ParameterSetName='Obj')]
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
         [PagerDuty.TimeZones]$TimeZone
     )
-        
-    if ($PsCmdlet.ParameterSetName -eq "Obj"){
-        $PagerDutyCore.VerifyTypeMatch($PagerDutyUser, "PagerDuty.User")
-        $Id = $PagerDutyUser.id
-        
-        $PagerDutyCore.VerifyNotNull($Id)
-    }
+
+    $Uri = "users/$Id"
 
     $Body = @{}
 
@@ -301,7 +273,7 @@ function Set-PagerDutyUser {
     if ($Body.Count -eq 0) { throw [System.ArgumentNullException] "Must provide one value to update for the user." }
 
     if ($PsCmdlet.ShouldProcess($Id)) {
-        $Result = $PagerDutyCore.ApiPut("users/" + $Id, $Body)
+        $Result = $PagerDutyCore.ApiPut($Uri, $Body)
         $Result.user.pstypenames.Insert(0,'PagerDuty.User')
         return $Result.user
     }
@@ -408,15 +380,6 @@ function New-PagerDutyUser {
     Remove an existing user.
 
 .EXAMPLE
-    Get-PagerDutyUser -QueryFilter "@olddomain.com" | Foreach-Object { Remove-PagerDutyUser -Force }
-
-    RESULTS
-
-    DESCRIPTION
-
-    In this example we remove any users with an email containing "olddomain.com". The lack of results means it was successful.
-
-.EXAMPLE
     $Results = Remove-PagerDutyUser -Id 123456E -Force; $Results
 
     RESULTS
@@ -441,27 +404,17 @@ function New-PagerDutyUser {
     https://github.com/robcerda60/PagerDuty-PoSh-API-Client
 #>
 function Remove-PagerDutyUser {
-[CmdletBinding(DefaultParameterSetName="Id", SupportsShouldProcess=$true, ConfirmImpact="High")]
+[CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact="High")]
     Param(
         #The PagerDuty ID of the user you would like to delete.
-        [Parameter(Mandatory=$true, ParameterSetName='Id', ValueFromPipeline=$true,
-        ValueFromPipelineByPropertyName=$true)]
-        [string]$Id,
-
-        #A PagerDuty object representing a user to delete.
-        [Parameter(Mandatory=$true, ParameterSetName='Obj', ValueFromPipeline=$true)]
-        $PagerDutyUser
+        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
+        [string]$Id
     )
         
-    if ($PsCmdlet.ParameterSetName -eq "Obj"){
-        $PagerDutyCore.VerifyTypeMatch($PagerDutyUser, "PagerDuty.User")
-        $Id = $PagerDutyUser.id
-    }
-
-    $PagerDutyCore.VerifyNotNull($Id)
+    $Uri = "users/$Id"
 
     if ($PsCmdlet.ShouldProcess($Name)) {
-        $Result = $PagerDutyCore.ApiDelete("users/$Id")
-		return $Result.user
+        $Result = $PagerDutyCore.ApiDelete($Uri)
+		return $Result
     }
 }

@@ -1,4 +1,58 @@
-﻿$PagerDutyUserIncludeEnum = "
+﻿#TODO: Consolidate all in to one scriptblock
+
+$PagerDutyScheduleRestrictionTypeEnum = "
+namespace PagerDuty
+{
+public enum ScheduleRestrictionType
+{
+daily, weekly
+}}
+"
+
+Add-Type -TypeDefinition $PagerDutyScheduleRestrictionTypeEnum -Language CSharpVersion3
+
+Remove-Variable PagerDutyScheduleRestrictionTypeEnum
+
+$PagerDutyReportRollupEnum = "
+namespace PagerDuty
+{
+public enum ReportRollupType
+{
+daily, weekly, monthly
+}}
+"
+
+Add-Type -TypeDefinition $PagerDutyReportRollupEnum -Language CSharpVersion3
+
+Remove-Variable PagerDutyReportRollupEnum
+
+$PagerDutyReportTypeEnum = "
+namespace PagerDuty
+{
+public enum ReportType
+{
+alerts_per_time, incidents_per_time
+}}
+"
+
+Add-Type -TypeDefinition $PagerDutyReportTypeEnum -Language CSharpVersion3
+
+Remove-Variable PagerDutyReportTypeEnum
+
+$PagerDutyMaintenanceWindowFilterEnum = "
+namespace PagerDuty
+{
+public enum MaintenanceWindowFilters
+{
+past, future, ongoing
+}}
+"
+
+Add-Type -TypeDefinition $PagerDutyMaintenanceWindowFilterEnum -Language CSharpVersion3
+
+Remove-Variable PagerDutyMaintenanceWindowFilterEnum
+
+$PagerDutyUserIncludeEnum = "
 namespace PagerDuty
 {
 [System.FlagsAttribute]

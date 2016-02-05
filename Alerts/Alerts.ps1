@@ -39,7 +39,7 @@ function Get-PagerDutyAlert {
 
     $Results = New-Object System.Collections.ArrayList
 
-    if ($PsCmdlet.ShouldProcess("alerts")) {
+    if ($PsCmdlet.ShouldProcess("get alerts")) {
         $PagerDutyCore.ApiGet("alerts", $Body, $MaxResults) `
             | ForEach-Object {$Results.AddRange($_.alerts)}
         $Results | ForEach-Object {$_.pstypenames.Insert(0,'PagerDuty.Alert')}
