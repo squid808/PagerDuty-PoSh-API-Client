@@ -24,6 +24,8 @@ function Get-PagerDutyAlert {
         [int]$MaxResults
     )
 
+    $Uri = "alerts"
+
     $Body = @{
         since=$PagerDutyCore.ConvertDateTime($Since)
         until=$PagerDutyCore.ConvertDateTime($Until)
@@ -40,7 +42,7 @@ function Get-PagerDutyAlert {
     $Results = New-Object System.Collections.ArrayList
 
     if ($PsCmdlet.ShouldProcess("get alerts")) {
-        $PagerDutyCore.ApiGet("alerts", $Body, $MaxResults) `
+        $PagerDutyCore.ApiGet($Uri, $Body, $MaxResults) `
             | ForEach-Object {$Results.AddRange($_.alerts)}
         $Results | ForEach-Object {$_.pstypenames.Insert(0,'PagerDuty.Alert')}
         return $Results

@@ -272,7 +272,7 @@ function Set-PagerDutyUser {
 
     if ($Body.Count -eq 0) { throw [System.ArgumentNullException] "Must provide one value to update for the user." }
 
-    if ($PsCmdlet.ShouldProcess($Id)) {
+    if ($PsCmdlet.ShouldProcess("update user")) {
         $Result = $PagerDutyCore.ApiPut($Uri, $Body)
         $Result.user.pstypenames.Insert(0,'PagerDuty.User')
         return $Result.user

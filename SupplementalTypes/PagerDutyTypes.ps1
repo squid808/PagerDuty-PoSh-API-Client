@@ -1,197 +1,90 @@
-﻿#TODO: Consolidate all in to one scriptblock
-
-$PagerDutyScheduleRestrictionTypeEnum = "
+﻿$PagerDutyEnums = "
 namespace PagerDuty
 {
-public enum ScheduleRestrictionType
-{
-daily, weekly
-}}
+    public enum ServiceType
+    { generic_email, generic_events_api, integration, keynote, nagios, pingdom, sql_monitor }
+
+    public enum ServiceSeverityFilter
+    { critical, critical_or_warning, on_any, on_high, on_medium_high }
+
+    [System.FlagsAttribute]
+    public enum ServiceSortBy
+    { name, id }
+
+    [System.FlagsAttribute]
+    public enum ServiceIncludes
+    { escalation_policy=1, email_filters=2, teams=4 }
+
+    public enum ScheduleRestrictionType
+    { daily, weekly }
+
+    public enum ReportRollupType
+    { daily, weekly, monthly }
+
+    public enum ReportType
+    { alerts_per_time, incidents_per_time }
+
+    public enum MaintenanceWindowFilters
+    { past, future, ongoing }
+
+    [System.FlagsAttribute]
+    public enum UserIncludes
+    { contact_methods=1, notification_rules=2 }
+
+    [System.FlagsAttribute]
+    public enum LogEntryIncludes
+    { channel=1, incident=2, service=4 }
+
+    [System.FlagsAttribute]
+    public enum IncidentSortBy
+    { incident_number=1, created_on=2, resolved_on=4, urgency=8 }
+
+    [System.FlagsAttribute]
+    public enum IncidentStatusTypes
+    { triggered=1, acknowledged=2, resolved=4 }
+
+    public enum RoleTypes
+    { admin, user, limited_user }
+
+    public enum ContactMethodsTypes
+    { SMS, email, phone }
+
+    public enum AlertFilterTypes
+    { SMS, Email, Phone, Push }
+
+    public enum EscalationRuleTargetType
+    { schedule, user }
+
+    /*
+    Define the time zones as an enum with all special characters removed so they
+    can be called as an argument in Cmdlets where the user can choose from a
+    list generated from autocomplete. Then put the enum in to the dictionary to
+    get the actual string required for the API with special characters.
+    */
+    public enum TimeZones
+    {
+        Abu_Dhabi,Adelaide,Alaska,Almaty,American_Samoa,Amsterdam,Arizona,Astana,Athens,Atlantic_Time_Canada,Auckland,Azores,
+        Baghdad,Baku,Bangkok,Beijing,Belgrade,Berlin,Bern,Bogota,Brasilia,Bratislava,Brisbane,Brussels,Bucharest,Budapest,
+        Buenos_Aires,Cairo,Canberra,Cape_Verde_Is,Caracas,Casablanca,Central_America,Central_Time_US_and_Canada,Chennai,
+        Chihuahua,Chongqing,Copenhagen,Cuiaba,Darwin,Dhaka,Dublin,Eastern_Time_US_and_Canada,Edinburgh,Ekaterinburg,Fiji,
+        Georgetown,Greenland,Guadalajara,Guam,Hanoi,Harare,Hawaii,Helsinki,Hobart,Hong_Kong,Indiana_East,
+        International_Date_Line_West,Irkutsk,Islamabad,Istanbul,Jakarta,Jerusalem,Kabul,Kamchatka,Karachi,Kathmandu,Kolkata,
+        Krasnoyarsk,Kuala_Lumpur,Kuwait,Kyiv,La_Paz,Lima,Lisbon,Ljubljana,London,Madrid,Magadan,Marshall_Is,Mazatlan,Melbourne,
+        Mexico_City,Mid_Atlantic,Midway_Island,Minsk,Monrovia,Monterrey,Moscow,Mountain_Time_US_and_Canada,Mumbai,Muscat,
+        Nairobi,New_Caledonia,New_Delhi,Newfoundland,Novosibirsk,Nuku_alofa,Osaka,Pacific_Time_US_and_Canada,Paris,Perth,
+        Port_Moresby,Prague,Pretoria,Quito,Rangoon,Riga,Riyadh,Rome,Samoa,Santiago,Sapporo,Sarajevo,Saskatchewan,Seoul,
+        Singapore,Skopje,Sofia,Solomon_Is,Sri_Jayawardenepura,St_Petersburg,Stockholm,Sydney,Taipei,Tallinn,Tashkent,Tbilisi,
+        Tehran,Tijuana,Tokelau_Is,Tokyo,UTC,Ulaan_Bataar,Urumqi,Vienna,Vilnius,Vladivostok,Volgograd,Warsaw,Wellington,
+        West_Central_Africa,Yakutsk,Yerevan,Zagreb
+    }
+
+}
 "
 
-Add-Type -TypeDefinition $PagerDutyScheduleRestrictionTypeEnum -Language CSharpVersion3
+Add-Type -TypeDefinition $PagerDutyEnums -Language CSharpVersion3
 
-Remove-Variable PagerDutyScheduleRestrictionTypeEnum
+Remove-Variable PagerDutyEnums
 
-$PagerDutyReportRollupEnum = "
-namespace PagerDuty
-{
-public enum ReportRollupType
-{
-daily, weekly, monthly
-}}
-"
-
-Add-Type -TypeDefinition $PagerDutyReportRollupEnum -Language CSharpVersion3
-
-Remove-Variable PagerDutyReportRollupEnum
-
-$PagerDutyReportTypeEnum = "
-namespace PagerDuty
-{
-public enum ReportType
-{
-alerts_per_time, incidents_per_time
-}}
-"
-
-Add-Type -TypeDefinition $PagerDutyReportTypeEnum -Language CSharpVersion3
-
-Remove-Variable PagerDutyReportTypeEnum
-
-$PagerDutyMaintenanceWindowFilterEnum = "
-namespace PagerDuty
-{
-public enum MaintenanceWindowFilters
-{
-past, future, ongoing
-}}
-"
-
-Add-Type -TypeDefinition $PagerDutyMaintenanceWindowFilterEnum -Language CSharpVersion3
-
-Remove-Variable PagerDutyMaintenanceWindowFilterEnum
-
-$PagerDutyUserIncludeEnum = "
-namespace PagerDuty
-{
-[System.FlagsAttribute]
-public enum UserIncludes
-{
-contact_methods=1, notification_rules=2
-}}
-"
-
-Add-Type -TypeDefinition $PagerDutyUserIncludeEnum -Language CSharpVersion3
-
-Remove-Variable PagerDutyUserIncludeEnum
-
-$PagerDutyLogEntryIncludeEnum = "
-namespace PagerDuty
-{
-[System.FlagsAttribute]
-public enum LogEntryIncludes
-{
-channel=1, incident=2, service=4
-}}
-"
-
-Add-Type -TypeDefinition $PagerDutyLogEntryIncludeEnum -Language CSharpVersion3
-
-Remove-Variable PagerDutyLogEntryIncludeEnum
-
-$PagerDutyIncidentSortByEnum = "
-namespace PagerDuty
-{
-[System.FlagsAttribute]
-public enum IncidentSortBy
-{
-incident_number=1, created_on=2, resolved_on=4, urgency=8
-}}
-"
-
-Add-Type -TypeDefinition $PagerDutyIncidentSortByEnum -Language CSharpVersion3
-
-Remove-Variable PagerDutyIncidentSortByEnum
-
-$PagerDutyIncidentStatusEnum = "
-namespace PagerDuty
-{
-[System.FlagsAttribute]
-public enum IncidentStatusTypes
-{
-triggered=1, acknowledged=2, resolved=4
-}}
-"
-
-Add-Type -TypeDefinition $PagerDutyIncidentStatusEnum -Language CSharpVersion3
-
-Remove-Variable PagerDutyIncidentStatusEnum
-
-$PagerDutyRoleEnum = "
-namespace PagerDuty
-{
-public enum RoleTypes
-{
-admin, user, limited_user
-}}
-"
-
-Add-Type -TypeDefinition $PagerDutyRoleEnum -Language CSharpVersion3
-
-Remove-Variable PagerDutyRoleEnum
-
-$PagerDutyContactMethodTypeEnum = "
-namespace PagerDuty
-{
-public enum ContactMethodsTypes
-{
-SMS, email, phone
-}}
-"
-
-Add-Type -TypeDefinition $PagerDutyContactMethodTypeEnum -Language CSharpVersion3
-
-Remove-Variable PagerDutyContactMethodTypeEnum
-
-$PagerDutyAlertFilterTypeEnum = "
-namespace PagerDuty
-{
-public enum AlertFilterTypes
-{
-SMS, Email, Phone, Push
-}}
-"
-
-Add-Type -TypeDefinition $PagerDutyAlertFilterTypeEnum -Language CSharpVersion3
-
-Remove-Variable PagerDutyAlertFilterTypeEnum
-
-$PagerDutyEscalationRuleTargetTypeEnum = "
-namespace PagerDuty
-{
-public enum EscalationRuleTargetType
-{
-schedule, user
-}}
-"
-
-Add-Type -TypeDefinition $PagerDutyEscalationRuleTargetTypeEnum -Language CSharpVersion3
-
-Remove-Variable PagerDutyEscalationRuleTargetTypeEnum
-
-
-
-<#
-Define the time zones as an enum with all special characters removed so they
-can be called as an argument in Cmdlets where the user can choose from a
-list generated from autocomplete. Then put the enum in to the dictionary to
-get the actual string required for the API with special characters.
-#>
-$PagerDutyTimeZoneEnum = "
-namespace PagerDuty
-{
-public enum TimeZones
-{
-Abu_Dhabi,Adelaide,Alaska,Almaty,American_Samoa,Amsterdam,Arizona,Astana,Athens,Atlantic_Time_Canada,Auckland,Azores,
-Baghdad,Baku,Bangkok,Beijing,Belgrade,Berlin,Bern,Bogota,Brasilia,Bratislava,Brisbane,Brussels,Bucharest,Budapest,
-Buenos_Aires,Cairo,Canberra,Cape_Verde_Is,Caracas,Casablanca,Central_America,Central_Time_US_and_Canada,Chennai,
-Chihuahua,Chongqing,Copenhagen,Cuiaba,Darwin,Dhaka,Dublin,Eastern_Time_US_and_Canada,Edinburgh,Ekaterinburg,Fiji,
-Georgetown,Greenland,Guadalajara,Guam,Hanoi,Harare,Hawaii,Helsinki,Hobart,Hong_Kong,Indiana_East,
-International_Date_Line_West,Irkutsk,Islamabad,Istanbul,Jakarta,Jerusalem,Kabul,Kamchatka,Karachi,Kathmandu,Kolkata,
-Krasnoyarsk,Kuala_Lumpur,Kuwait,Kyiv,La_Paz,Lima,Lisbon,Ljubljana,London,Madrid,Magadan,Marshall_Is,Mazatlan,Melbourne,
-Mexico_City,Mid_Atlantic,Midway_Island,Minsk,Monrovia,Monterrey,Moscow,Mountain_Time_US_and_Canada,Mumbai,Muscat,
-Nairobi,New_Caledonia,New_Delhi,Newfoundland,Novosibirsk,Nuku_alofa,Osaka,Pacific_Time_US_and_Canada,Paris,Perth,
-Port_Moresby,Prague,Pretoria,Quito,Rangoon,Riga,Riyadh,Rome,Samoa,Santiago,Sapporo,Sarajevo,Saskatchewan,Seoul,
-Singapore,Skopje,Sofia,Solomon_Is,Sri_Jayawardenepura,St_Petersburg,Stockholm,Sydney,Taipei,Tallinn,Tashkent,Tbilisi,
-Tehran,Tijuana,Tokelau_Is,Tokyo,UTC,Ulaan_Bataar,Urumqi,Vienna,Vilnius,Vladivostok,Volgograd,Warsaw,Wellington,
-West_Central_Africa,Yakutsk,Yerevan,Zagreb
-}}
-"
-
-Add-Type -TypeDefinition $PagerDutyTimeZoneEnum -Language CSharpVersion3
-
-Remove-Variable PagerDutyTimeZoneEnum
 
 $PagerDutyTimeZoneDict = New-Object 'System.Collections.Generic.Dictionary[[PagerDuty.TimeZones],[System.String]]'
 

@@ -115,7 +115,7 @@ function Get-PagerDutySchedule {
         $Body['until'] = $PagerDutyCore.ConvertDateTime($Until)
 
         if ($Overflow) {
-            $Body['overflow'] = $Overflow
+            $Body['overflow'] = $PagerDutyCore.ConvertBoolean($Overflow)
         }
 
         if ($TimeZone) {
@@ -147,7 +147,7 @@ function Get-PagerDutySchedule {
         $Results = New-Object System.Collections.ArrayList
 
         if ($PsCmdlet.ShouldProcess("get schedules")) {
-            $PagerDutyCore.ApiGet("alerts", $Body, $MaxResults) `
+            $PagerDutyCore.ApiGet($Uri, $Body, $MaxResults) `
                 | ForEach-Object {$Results.AddRange($_.schedules)}
             $Results | ForEach-Object {$_.pstypenames.Insert(0,'PagerDuty.Schedule')}
             return $Results
@@ -188,7 +188,7 @@ function Set-PagerDutySchedule {
     $Body = @{}
 
     if ($Overflow) {
-        $Body['overflow'] = $Overflow.ToString()
+        $Body['overflow'] = $PagerDutyCore.ConvertBoolean($Overflow)
     }
 
     if ($PsCmdlet.ParameterSetName -eq "Schedule"){
@@ -270,7 +270,7 @@ function New-PagerDutySchedule {
     }
 
     if ($Overflow) {
-        $Body['overflow'] = $Overflow.ToString()
+        $Body['overflow'] = $PagerDutyCore.ConvertBoolean($Overflow)
     }
 
     if ($ScheduleLayers -isnot [System.Collections.ICollection]){
