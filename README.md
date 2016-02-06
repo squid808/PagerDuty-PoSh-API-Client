@@ -23,60 +23,61 @@ The first time you run any cmdlet you will be asked to input your API key and yo
 
 The following Cmdlets are accessible once you import the module:
 ----
-Get-PagerDutyAlert
-Get-PagerDutyContactMethod
-Get-PagerDutyEscalationPolicy
-Get-PagerDutyEscalationRule
-Get-PagerDutyIncident
-Get-PagerDutyIncidentNote
-Get-PagerDutyLogEntry
-Get-PagerDutyMaintenanceWindow
-Get-PagerDutyNotificationRule
-Get-PagerDutyReport
-Get-PagerDutySchedule
-Get-PagerDutyScheduleOverride
-Get-PagerDutyService
-Get-PagerDutyTeam
-Get-PagerDutyUser
 
-New-PagerDutyContactMethod
-New-PagerDutyEmailFilter
-New-PagerDutyEscalationPolicy
-New-PagerDutyEscalationRule
-New-PagerDutyEscalationRuleObject
-New-PagerDutyEscalationRuleTargetObject
-New-PagerDutyIncidentNote
-New-PagerDutyIncidentObject
-New-PagerDutyMaintenanceWindow
-New-PagerDutyNotificationRule
-New-PagerDutySchedule
-New-PagerDutyScheduleLayerObject
-New-PagerDutyScheduleOverride
-New-PagerDutyScheduleRestrictionObject
-New-PagerDutyScheduleUserEntryObject
-New-PagerDutyService
-New-PagerDutyTeam
-New-PagerDutyUser
+* Get-PagerDutyAlert
+* Get-PagerDutyContactMethod
+* Get-PagerDutyEscalationPolicy
+* Get-PagerDutyEscalationRule
+* Get-PagerDutyIncident
+* Get-PagerDutyIncidentNote
+* Get-PagerDutyLogEntry
+* Get-PagerDutyMaintenanceWindow
+* Get-PagerDutyNotificationRule
+* Get-PagerDutyReport
+* Get-PagerDutySchedule
+* Get-PagerDutyScheduleOverride
+* Get-PagerDutyService
+* Get-PagerDutyTeam
+* Get-PagerDutyUser
 
-Remove-PagerDutyContactMethod
-Remove-PagerDutyEmailFilter
-Remove-PagerDutyEscalationPolicy
-Remove-PagerDutyEscalationRule
-Remove-PagerDutyMaintenanceWindow
-Remove-PagerDutyNotificationRule
-Remove-PagerDutySchedule
-Remove-PagerDutyScheduleOverride
-Remove-PagerDutyService
-Remove-PagerDutyTeam
-Remove-PagerDutyUser
+* New-PagerDutyContactMethod
+* New-PagerDutyEmailFilter
+* New-PagerDutyEscalationPolicy
+* New-PagerDutyEscalationRule
+* New-PagerDutyEscalationRuleObject
+* New-PagerDutyEscalationRuleTargetObject
+* New-PagerDutyIncidentNote
+* New-PagerDutyIncidentObject
+* New-PagerDutyMaintenanceWindow
+* New-PagerDutyNotificationRule
+* New-PagerDutySchedule
+* New-PagerDutyScheduleLayerObject
+* New-PagerDutyScheduleOverride
+* New-PagerDutyScheduleRestrictionObject
+* New-PagerDutyScheduleUserEntryObject
+* New-PagerDutyService
+* New-PagerDutyTeam
+* New-PagerDutyUser
 
-Set-PagerDutyContactMethod
-Set-PagerDutyEscalationPolicy
-Set-PagerDutyEscalationRule
-Set-PagerDutyIncident
-Set-PagerDutyMaintenanceWindow
-Set-PagerDutyNotificationRule
-Set-PagerDutySchedule
-Set-PagerDutyService
-Set-PagerDutyTeam
-Set-PagerDutyUser
+* Remove-PagerDutyContactMethod
+* Remove-PagerDutyEmailFilter
+* Remove-PagerDutyEscalationPolicy
+* Remove-PagerDutyEscalationRule
+* Remove-PagerDutyMaintenanceWindow
+* Remove-PagerDutyNotificationRule
+* Remove-PagerDutySchedule
+* Remove-PagerDutyScheduleOverride
+* Remove-PagerDutyService
+* Remove-PagerDutyTeam
+* Remove-PagerDutyUser
+
+* Set-PagerDutyContactMethod
+* Set-PagerDutyEscalationPolicy
+* Set-PagerDutyEscalationRule
+* Set-PagerDutyIncident
+* Set-PagerDutyMaintenanceWindow
+* Set-PagerDutyNotificationRule
+* Set-PagerDutySchedule
+* Set-PagerDutyService
+* Set-PagerDutyTeam
+* Set-PagerDutyUser
