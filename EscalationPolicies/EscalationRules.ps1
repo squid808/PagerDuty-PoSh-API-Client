@@ -143,6 +143,38 @@ function New-PagerDutyEscalationRule {
     }
 }
 
+function Remove-PagerDutyEscalationRule {
+[CmdletBinding(DefaultParameterSetName="Id", SupportsShouldProcess=$true, ConfirmImpact="High")]
+    Param(
+        #The ID of an existing escalation policy.
+        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory=$true, ParameterSetName='All')]
+        [string]$EscalationPolicyId,
+
+        #The ID of an existing escalation rule.
+        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName='Id')]
+        [string]$EscalationRuleId,
+
+        #A PagerDuty object representing an escalation rule to delete.
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName='All')]
+        $PagerDutyEscalationRule
+    )
+
+    if ($PsCmdlet.ParameterSetName -eq "Obj"){
+        $PagerDutyCore.VerifyTypeMatch($PagerDutyEscalationRule, "PagerDuty.EscalationRule")
+        $EscalationRuleId = $PagerDutyEscalationRule.id
+    }
+
+    $PagerDutyCore.VerifyNotNull($EscalationRuleId)
+
+    $Uri = "escalation_policies/$EscalationPolicyId/escalation_rules/$EscalationRuleId"
+
+    if ($PsCmdlet.ShouldProcess("Remove Escalation Rule")) {
+        $Result = $PagerDutyCore.ApiDelete($Uri)
+        return $Result
+    }
+}
+
 function New-PagerDutyEscalationRuleObject {
     Param(
         #The escalation timeout in minutes. If an incident is not acknowledged within this timeout then it will escalate onto the next escalation rule.
@@ -183,8 +215,6 @@ function New-PagerDutyEscalationRuleObject {
     return $Result
 }
 
-New-Alias -Name New-PDERO -Value New-PagerDutyEscalationRuleObject
-
 function New-PagerDutyEscalationRuleTargetObject {
     Param(
         #A string of either schedule or user.
@@ -206,36 +236,9 @@ function New-PagerDutyEscalationRuleTargetObject {
     return $Result
 }
 
-New-Alias -Name New-PDERTO -Value New-PagerDutyEscalationRuleTargetObject
-
-function Remove-PagerDutyEscalationRule {
-[CmdletBinding(DefaultParameterSetName="Id", SupportsShouldProcess=$true, ConfirmImpact="High")]
-    Param(
-        #The ID of an existing escalation policy.
-        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName='Id')]
-        [Parameter(Mandatory=$true, ParameterSetName='All')]
-        [string]$EscalationPolicyId,
-
-        #The ID of an existing escalation rule.
-        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName='Id')]
-        [string]$EscalationRuleId,
-
-        #A PagerDuty object representing an escalation rule to delete.
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName='All')]
-        $PagerDutyEscalationRule
-    )
-
-    if ($PsCmdlet.ParameterSetName -eq "Obj"){
-        $PagerDutyCore.VerifyTypeMatch($PagerDutyEscalationRule, "PagerDuty.EscalationRule")
-        $EscalationRuleId = $PagerDutyEscalationRule.id
-    }
-
-    $PagerDutyCore.VerifyNotNull($EscalationRuleId)
-
-    $Uri = "escalation_policies/$EscalationPolicyId/escalation_rules/$EscalationRuleId"
-
-    if ($PsCmdlet.ShouldProcess("Remove Escalation Rule")) {
-        $Result = $PagerDutyCore.ApiDelete($Uri)
-        return $Result
-    }
-}
+Export-ModuleMember Get-PagerDutyEscalationRule
+Export-ModuleMember Set-PagerDutyEscalationRule
+Export-ModuleMember New-PagerDutyEscalationRule
+Export-ModuleMember Remove-PagerDutyEscalationRule
+Export-ModuleMember New-PagerDutyEscalationRuleObject
+Export-ModuleMember New-PagerDutyEscalationRuleTargetObject

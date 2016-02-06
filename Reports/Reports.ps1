@@ -45,3 +45,5 @@ function Get-PagerDutyReport {
         }
     }
 }
+
+Export-ModuleMember Get-PagerDutyReport

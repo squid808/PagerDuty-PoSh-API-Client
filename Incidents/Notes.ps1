@@ -53,3 +53,6 @@ function New-PagerDutyIncidentNote {
         return $Result.note
     }
 }
+
+Export-ModuleMember Get-PagerDutyIncidentNote
+Export-ModuleMember New-PagerDutyIncidentNote

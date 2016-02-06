@@ -202,3 +202,8 @@ function Remove-PagerDutyMaintenanceWindow {
         return $Result
     }
 }
+
+Export-ModuleMember Get-PagerDutyMaintenanceWindow
+Export-ModuleMember Set-PagerDutyMaintenanceWindow
+Export-ModuleMember New-PagerDutyMaintenanceWindow
+Export-ModuleMember Remove-PagerDutyMaintenanceWindow

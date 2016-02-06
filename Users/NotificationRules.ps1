@@ -163,3 +163,8 @@ function Remove-PagerDutyNotificationRule {
 		return $Result
     }
 }
+
+Export-ModuleMember Get-PagerDutyNotificationRule
+Export-ModuleMember Set-PagerDutyNotificationRule
+Export-ModuleMember New-PagerDutyNotificationRule
+Export-ModuleMember Remove-PagerDutyNotificationRule

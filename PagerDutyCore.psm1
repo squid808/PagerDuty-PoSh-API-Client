@@ -1,14 +1,7 @@
-#Requires -Version 3.0
-
-#Load Supporting Types First
-#TODO: Remove object variables -it was a silly idea.
-
-. .\SupplementalTypes\PagerDutyTypes.ps1
-
 Set-Variable -Scope Global -Name PagerDutyCore -Option ReadOnly -Value (New-Object psobject -Property @{
     apiKey = $null
     domain = $null
-    authFolder = $env:USERPROFILE + "\Documents\WindowsPowerShell\Modules\PagerDutyAPI"
+    authFolder = $env:USERPROFILE + "\Documents\WindowsPowerShell\Modules\PagerDuty"
     authFileName = "authSettings.json"
     timeZoneDict = $PagerDutyTimeZoneDict
 })
@@ -210,18 +203,6 @@ $PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ConvertBoolean" -Val
 }
 
 $PagerDutyCore.pstypenames.Insert(0,'PagerDuty.Core')
-
-. .\Users\Users.ps1
-. .\Users\NotificationRules.ps1
-. .\Users\ContactMethods.ps1
-. .\Alerts\Alerts.ps1
-. .\EscalationPolicies\EscalationPolicies.ps1
-. .\EscalationPolicies\EscalationRules.ps1
-. .\Incidents\Incidents.ps1
-. .\Incidents\Notes.ps1
-. .\LogEntries\LogEntries.ps1
-. .\MaintenanceWindows\MaintenanceWindows.ps1
-
 
 @"
 Help Template, remove this when the project has been completed.

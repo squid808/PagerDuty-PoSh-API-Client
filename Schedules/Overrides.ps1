@@ -107,3 +107,7 @@ function Remove-PagerDutyScheduleOverride {
         return $Result
     }
 }
+
+Export-ModuleMember Get-PagerDutyScheduleOverride
+Export-ModuleMember New-PagerDutyScheduleOverride
+Export-ModuleMember Remove-PagerDutyScheduleOverride

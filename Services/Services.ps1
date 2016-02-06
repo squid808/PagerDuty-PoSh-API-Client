@@ -356,3 +356,8 @@ function Remove-PagerDutyService {
         return $Result
     }
 }
+
+Export-ModuleMember Get-PagerDutyService
+Export-ModuleMember Set-PagerDutyService
+Export-ModuleMember New-PagerDutyService
+Export-ModuleMember Remove-PagerDutyService

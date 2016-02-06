@@ -108,3 +108,5 @@ function Get-PagerDutyLogEntry {
         return $Results
     }
 }
+
+Export-ModuleMember Get-PagerDutyLogEntry

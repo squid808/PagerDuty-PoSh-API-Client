@@ -249,3 +249,8 @@ function Remove-PagerDutyEscalationPolicy {
         return $Result
     }
 }
+
+Export-ModuleMember Get-PagerDutyEscalationPolicy
+Export-ModuleMember Set-PagerDutyEscalationPolicy
+Export-ModuleMember New-PagerDutyEscalationPolicy
+Export-ModuleMember Remove-PagerDutyEscalationPolicy

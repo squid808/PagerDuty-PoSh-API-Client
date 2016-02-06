@@ -204,3 +204,8 @@ function Remove-PagerDutyContactMethod {
 		return $Result.user
     }
 }
+
+Export-ModuleMember Get-PagerDutyContactMethod
+Export-ModuleMember Set-PagerDutyContactMethod
+Export-ModuleMember New-PagerDutyContactMethod
+Export-ModuleMember Remove-PagerDutyContactMethod

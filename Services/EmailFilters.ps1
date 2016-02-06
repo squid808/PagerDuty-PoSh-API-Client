@@ -41,15 +41,15 @@ function Set-PagerDutyEmailFilter {
 
     $Body = @{}
 
-    if ($SubjectMode) { $Body['subject_mode'] = $SubjectMode.ToString() }
+    if ($SubjectMode) { $Body['subject_mode'] = $SubjectMode.ToString().Replace('_','-') }
 
     if ($SubjectRegex) { $Body['subject_mode'] = $SubjectRegex }
 
-    if ($BodyMode) { $Body['subject_mode'] = $BodyMode.ToString() }
+    if ($BodyMode) { $Body['subject_mode'] = $BodyMode.ToString().Replace('_','-') }
 
     if ($BodyRegex) { $Body['subject_mode'] = $BodyRegex }
 
-    if ($FromEmailMode) { $Body['subject_mode'] = $FromEmailMode.ToString() }
+    if ($FromEmailMode) { $Body['subject_mode'] = $FromEmailMode.ToString().Replace('_','-') }
 
     if ($FromEmailRegex) { $Body['subject_mode'] = $FromEmailRegex }
 
@@ -136,3 +136,7 @@ function Remove-PagerDutyEmailFilter {
         return $Result
     }
 }
+
+Export-ModuleMember Get-PagerDutyEmailFilter
+Export-ModuleMember New-PagerDutyEmailFilter
+Export-ModuleMember Remove-PagerDutyEmailFilter

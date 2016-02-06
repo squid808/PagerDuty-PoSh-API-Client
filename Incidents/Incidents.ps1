@@ -295,3 +295,7 @@ function New-PagerDutyIncidentObject {
 
     return $Body
 }
+
+Export-ModuleMember Get-PagerDutyIncident
+Export-ModuleMember Set-PagerDutyIncident
+Export-ModuleMember New-PagerDutyIncidentObject

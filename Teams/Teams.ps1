@@ -133,3 +133,8 @@ function Remove-PagerDutyTeam {
         return $Result
     }
 }
+
+Export-ModuleMember Get-PagerDutyTeam
+Export-ModuleMember Set-PagerDutyTeam
+Export-ModuleMember New-PagerDutyTeam
+Export-ModuleMember Remove-PagerDutyTeam

@@ -48,3 +48,5 @@ function Get-PagerDutyAlert {
         return $Results
     }
 }
+
+Export-ModuleMember Get-PagerDutyAlert

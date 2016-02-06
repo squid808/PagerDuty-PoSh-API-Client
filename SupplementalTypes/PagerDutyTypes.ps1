@@ -2,7 +2,7 @@
 namespace PagerDuty
 {
     public enum EmailFilterMatchType
-    { always, match, no-match }
+    { always, match, no_match }
     
     public enum ServiceType
     { generic_email, generic_events_api, integration, keynote, nagios, pingdom, sql_monitor }
@@ -87,7 +87,6 @@ namespace PagerDuty
 Add-Type -TypeDefinition $PagerDutyEnums -Language CSharpVersion3
 
 Remove-Variable PagerDutyEnums
-
 
 $PagerDutyTimeZoneDict = New-Object 'System.Collections.Generic.Dictionary[[PagerDuty.TimeZones],[System.String]]'
 

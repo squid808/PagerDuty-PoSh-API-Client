@@ -423,3 +423,11 @@ function New-PagerDutyScheduleRestrictionObject {
 
     return $Body
 }
+
+Export-ModuleMember Get-PagerDutySchedule
+Export-ModuleMember Set-PagerDutySchedule
+Export-ModuleMember New-PagerDutySchedule
+Export-ModuleMember Remove-PagerDutySchedule
+Export-ModuleMember New-PagerDutyScheduleLayerObject
+Export-ModuleMember New-PagerDutyScheduleUserEntryObject
+Export-ModuleMember New-PagerDutyScheduleRestrictionObject

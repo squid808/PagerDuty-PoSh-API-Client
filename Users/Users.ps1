@@ -418,3 +418,8 @@ function Remove-PagerDutyUser {
 		return $Result
     }
 }
+
+Export-ModuleMember Get-PagerDutyUser
+Export-ModuleMember Set-PagerDutyUser
+Export-ModuleMember New-PagerDutyUser
+Export-ModuleMember Remove-PagerDutyUser
