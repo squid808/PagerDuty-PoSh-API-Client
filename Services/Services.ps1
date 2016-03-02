@@ -95,45 +95,45 @@ function Set-PagerDutyService {
 [CmdletBinding(DefaultParameterSetName="Id", SupportsShouldProcess=$true, ConfirmImpact="Medium")]
     Param (
         #The ID of an existing Pager Duty service.
-        [ParamBinding(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName="Disable")]
-        [ParamBinding(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName="Enable")]
-        [ParamBinding(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName="Id")]
+        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName="Disable")]
+        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName="Enable")]
+        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName="Id")]
         [string]$Id,
 
         #Disable a service. Once a service is disabled, it will not be able to create incidents until it is enabled again.
-        [ParamBinding(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName="Disable")]
+        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName="Disable")]
         [switch]$SetDisabled,
 
         #Enable a previously disabled service.
-        [ParamBinding(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName="Enable")]
+        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName="Enable")]
         [switch]$SetEnabled,
 
         #Regenerate a new service key for an existing service. Warning! The service's previous key will be invalidated, and existing monitoring integrations will need to be modified to use the new key!
-        [ParamBinding(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName="RegenerateKey")]
+        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName="RegenerateKey")]
         [switch]$RegenerateKey,
 
         #The user id of the user creating the maintenance window. This is only needed if you are using token based authentication.
-        [ParamBinding(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName="Disable")]
+        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName="Disable")]
         [string]$RequesterId,
 
         #The name of the service.
-        [ParamBinding(ValueFromPipelineByPropertyName=$true, ParameterSetName="Id")]
+        [Parameter(ValueFromPipelineByPropertyName=$true, ParameterSetName="Id")]
         [string]$Name,
 
         #A description for the service. 1024 character maximum.
-        [ParamBinding(ValueFromPipelineByPropertyName=$true, ParameterSetName="Id")]
+        [Parameter(ValueFromPipelineByPropertyName=$true, ParameterSetName="Id")]
         [string]$Description,
 
         #The id of the escalation policy to be used by this service.
-        [ParamBinding(ValueFromPipelineByPropertyName=$true, ParameterSetName="Id")]
+        [Parameter(ValueFromPipelineByPropertyName=$true, ParameterSetName="Id")]
         [string]$EscalationPolicyId,
 
         #The duration in seconds before an incidents acknowledged in this service become triggered again.
-        [ParamBinding(ValueFromPipelineByPropertyName=$true, ParameterSetName="Id")]
+        [Parameter(ValueFromPipelineByPropertyName=$true, ParameterSetName="Id")]
         [int]$AcknowledgementTimeout,
 
         #The duration in seconds before a triggered incident auto-resolves itself.
-        [ParamBinding(ValueFromPipelineByPropertyName=$true, ParameterSetName="Id")]
+        [Parameter(ValueFromPipelineByPropertyName=$true, ParameterSetName="Id")]
         [int]$AutoResolveTimeout,
 
         <#
@@ -145,15 +145,15 @@ function Set-PagerDutyService {
         - on_high: Incidents are created for alerts with high severity
         - on_medium_high: Incidents are created for with high or medium severity
         #>
-        [ParamBinding(ValueFromPipelineByPropertyName=$true, ParameterSetName="Id")]
+        [Parameter(ValueFromPipelineByPropertyName=$true, ParameterSetName="Id")]
         [PagerDuty.ServiceSeverityFilter]$SeverityFilter,
 
         #Email specific setting. The service key for the service. Do not specify the domain. e.g. my-service rather than my-service@my-subdomain.pagerduty.com
-        [ParamBinding(ValueFromPipelineByPropertyName=$true, ParameterSetName="Id")]
+        [Parameter(ValueFromPipelineByPropertyName=$true, ParameterSetName="Id")]
         [string]$ServiceKey,
 
         #Email specific setting. One of only-if-no-open-incidents, on-new-email-subject or on-new-email. Defaults to on-new-email.
-        [ParamBinding(ValueFromPipelineByPropertyName=$true, ParameterSetName="Id")]
+        [Parameter(ValueFromPipelineByPropertyName=$true, ParameterSetName="Id")]
         [string]$EmailIncidentCreation
     )
 
@@ -244,31 +244,31 @@ function New-PagerDutyService {
     Param (
 
         #The name of the service.
-        [ParamBinding(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
         [string]$Name,
 
         #The id of the escalation policy to be used by this service.
-        [ParamBinding(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
         [string]$EscalationPolicyId,
 
         #The type of service to create. Can be one of generic_email, generic_events_api, integration, keynote, nagios, pingdom or sql_monitor.
-        [ParamBinding(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
         [PagerDuty.ServiceType]$Type,
 
         #PagerDuty's internal vendor identifier for this service. Will only be accepted if the service type is integration. For more information about a specific vendor, please contact PagerDuty Support.
-        [ParamBinding(ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
         [string]$VendorId,
 
         #A description for the service. 1024 character maximum.
-        [ParamBinding(ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
         [string]$Description,
 
         #The duration in seconds before an incidents acknowledged in this service become triggered again.
-        [ParamBinding(ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
         [int]$AcknowledgementTimeout,
 
         #The duration in seconds before a triggered incident auto-resolves itself.
-        [ParamBinding(ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
         [int]$AutoResolveTimeout,
 
         <#
@@ -280,15 +280,15 @@ function New-PagerDutyService {
         - on_high: Incidents are created for alerts with high severity
         - on_medium_high: Incidents are created for with high or medium severity
         #>
-        [ParamBinding(ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
         [PagerDuty.ServiceSeverityFilter]$SeverityFilter,
 
         #Email specific setting. The service key for the service. Do not specify the domain. e.g. my-service rather than my-service@my-subdomain.pagerduty.com
-        [ParamBinding(ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
         [string]$ServiceKey,
 
         #Email specific setting. One of only-if-no-open-incidents, on-new-email-subject or on-new-email. Defaults to on-new-email.
-        [ParamBinding(ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
         [string]$EmailIncidentCreation
     )
 
