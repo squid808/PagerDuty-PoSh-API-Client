@@ -1,7 +1,7 @@
 #TODO: Update Documentation
 
 function Get-PagerDutyService {
-[CmdletBinding(DefaultParameterSetName="Id", SupportsShouldProcess=$true, ConfirmImpact="Low")]
+[CmdletBinding(DefaultParameterSetName="All", SupportsShouldProcess=$true, ConfirmImpact="Low")]
     Param (
         
         #The ID for an existing Pager Duty teams.
@@ -63,6 +63,8 @@ function Get-PagerDutyService {
         }
 
         $Uri = "services$Additions"
+
+        $Body = @{}
 
         if ($Teams) {
             $Body['teams'] = $Teams
