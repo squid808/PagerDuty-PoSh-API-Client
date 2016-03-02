@@ -119,7 +119,11 @@ function Set-PagerDutyMaintenanceWindow {
             $ServiceIds = @($ServiceIds)
         }
 
-        $Body['service_ids'] = $ServiceIds | ConvertTo-Json -Depth 5 -Compress
+        $Body['service_ids'] = @()
+		
+		$ServiceIds | ForEach-Object {
+			$Body['service_ids'] += $_
+		}
     }
 
     if ($Body.Count -eq 0) { throw [System.ArgumentNullException] "Must provide one value to update for the maintenance window." }
@@ -176,9 +180,13 @@ function New-PagerDutyMaintenanceWindow {
         $ServiceIds = @($ServiceIds)
     }
 
-    $MWObject['service_ids'] = $ServiceIds | ConvertTo-Json -Depth 5 -Compress
+    $MWObject['service_ids'] = @()
+	
+	$ServiceIds | ForEach-Object {
+		$MWObject['service_ids'] += $_
+	}
 
-    $Body['maintenance_window'] = $MWObject | ConvertTo-Json -Depth 5 -Compress
+    $Body['maintenance_window'] = $MWObject
 
     if ($PsCmdlet.ShouldProcess("new maintenance window")) {
         $Result = $PagerDutyCore.ApiPost($Uri)

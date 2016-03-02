@@ -35,7 +35,7 @@ function Get-PagerDutyNotificationRule {
         $Result = $PagerDutyCore.ApiGet($Uri)
 
         if ($Result.notification_rule -ne $Null) {
-            $Result.notification_rule.Insert(0,'PagerDuty.NotificationRule')
+            $Result.notification_rule.pstypenames.Insert(0,'PagerDuty.NotificationRule')
             return $Result.notification_rule
         } else {
             $Results = New-Object System.Collections.ArrayList
@@ -97,7 +97,7 @@ function Set-PagerDutyNotificationRule {
 
     if ($PsCmdlet.ShouldProcess($UserId)) {
         $Result = $PagerDutyCore.ApiPut($Uri, $Body)
-        $Result.notification_rule.Insert(0,'PagerDuty.NotificationRule')
+        $Result.notification_rule.pstypenames.Insert(0,'PagerDuty.NotificationRule')
         return $Result.notification_rule
     }
 }
@@ -127,7 +127,7 @@ function New-PagerDutyNotificationRule {
 
     if ($PsCmdlet.ShouldProcess($Id)) {
         $Result = $PagerDutyCore.ApiPost($Uri, $Body)
-        $Result.notification_rule.Insert(0,'PagerDuty.NotificationRule')
+        $Result.notification_rule.pstypenames.Insert(0,'PagerDuty.NotificationRule')
         return $Result.notification_rule
     }
 }

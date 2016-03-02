@@ -35,7 +35,7 @@ function Get-PagerDutyContactMethod {
         $Result = $PagerDutyCore.ApiGet($Uri)
 
         if ($Result.contact_method -ne $Null) {
-            $Result.contact_method.Insert(0,'PagerDuty.ContactMethod')
+            $Result.contact_method.pstypenames.Insert(0,'PagerDuty.ContactMethod')
             return $Result.contact_method
         } else {
             $Results = New-Object System.Collections.ArrayList
@@ -115,7 +115,7 @@ function Set-PagerDutyContactMethod {
 
     if ($PsCmdlet.ShouldProcess($UserId)) {
         $Result = $PagerDutyCore.ApiPut($Uri, $Body)
-        $Result.contact_method.Insert(0,'PagerDuty.ContactMethod')
+        $Result.contact_method.pstypenames.Insert(0,'PagerDuty.ContactMethod')
         return $Result.contact_method
     }
 }
@@ -169,7 +169,7 @@ function New-PagerDutyContactMethod {
 
     if ($PsCmdlet.ShouldProcess($UserId)) {
         $Result = $PagerDutyCore.ApiPost($Uri, $Body)
-        $Result.contact_method.Insert(0,'PagerDuty.ContactMethod')
+        $Result.contact_method.pstypenames.Insert(0,'PagerDuty.ContactMethod')
         return $Result.contact_method
     }
 }

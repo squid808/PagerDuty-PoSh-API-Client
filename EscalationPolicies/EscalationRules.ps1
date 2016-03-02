@@ -22,7 +22,7 @@ function Get-PagerDutyEscalationRule {
         $Result = $PagerDutyCore.ApiGet($Uri)
 
         if ($Result.escalation_rule -ne $Null) {
-            $Result.escalation_rule.Insert(0,'PagerDuty.EscalationRule')
+            $Result.escalation_rule.pstypenames.Insert(0,'PagerDuty.EscalationRule')
             return $Result.escalation_rule
         } else {
             $Results = New-Object System.Collections.ArrayList
@@ -67,9 +67,13 @@ function Set-PagerDutyEscalationRule {
         }
 
         $Body = @{
-            escalation_rules = $AllEscalationRules | ConvertTo-Json -Depth 5 -Compress
+            escalation_rules = @()
         }
 
+		$EscalationRules | ForEach-Object {
+			$Body['escalation_rules'] += $_
+		}
+		
         if ($PsCmdlet.ShouldProcess("Set Multi Escalation Rule")) {
             $Result = $PagerDutyCore.ApiPut($Uri)
             $Result.escalation_rules | ForEach-Object {$_.pstypenames.Insert(0,'PagerDuty.EscalationRule')}
@@ -90,10 +94,13 @@ function Set-PagerDutyEscalationRule {
                 $Targets = @($Targets)
             }
 
+			 $Body["targets"] = @()
+			
             #TODO: Decide if this needs to be type checked? Would prevent custom objects and hashtables.
-            $Targets | Foreach-Object {$PagerDutyCore.VerifyTypeMatch($_, 'PagerDuty.EscalationRuleTarget')}
-
-            $Body["targets"] = $Targets | ConvertTo-Json -Depth 5 -Compress
+            $Targets | Foreach-Object {
+				$PagerDutyCore.VerifyTypeMatch($_, 'PagerDuty.EscalationRuleTarget')
+				$Body["targets"] += $_
+			}
         }
 
         if ($Body.Count -eq 0) { throw [System.ArgumentNullException] "Must provide one value to update for the escalation rule." }
@@ -128,13 +135,16 @@ function New-PagerDutyEscalationRule {
         $Targets = @($Targets)
     }
 
-    #TODO: Decide if this needs to be type checked? Would prevent custom objects and hashtables.
-    $Targets | Foreach-Object {$PagerDutyCore.VerifyTypeMatch($_, 'PagerDuty.EscalationRuleTarget')}
-
     $Body = @{
         escalation_delay_in_minutes = $EscalationDelayInMinutes.ToString()
-        targets = $Targets | ConvertTo-Json -Depth 5 -Compress
+        targets = @()
     }
+	
+	#TODO: Decide if this needs to be type checked? Would prevent custom objects and hashtables.
+    $Targets | Foreach-Object {
+		$PagerDutyCore.VerifyTypeMatch($_, 'PagerDuty.EscalationRuleTarget')
+		$Body['targets'] += $_
+	}
 
     if ($PsCmdlet.ShouldProcess("New Escalation Rule")) {
         $Result = $PagerDutyCore.ApiPost($Uri)
@@ -183,11 +193,7 @@ function New-PagerDutyEscalationRuleObject {
 
         #The target or the array of the targets an incident should be assigned to upon reaching this rule. Parameters detailed below.
         [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
-        $Targets,
-
-        #The optional ID of an existing escalation rule.
-        [Parameter(ValueFromPipelineByPropertyName=$true)]
-        [string]$Id
+        $Targets
     )
 
     if ($Targets -isnot [System.Collections.ICollection]){
@@ -197,17 +203,9 @@ function New-PagerDutyEscalationRuleObject {
     #TODO: Decide if this needs to be type checked? Would prevent custom objects and hashtables.
     $Targets | Foreach-Object {$PagerDutyCore.VerifyTypeMatch($_, 'PagerDuty.EscalationRuleTarget')}
 
-    if ($Id) {
-        $Result = New-Object psobject -Property @{
-            Id = $Id
-            escalation_delay_in_minutes = $EscalationDelayInMinutes.ToString()
-            targets = $Targets
-        }
-    } else {
-        $Result = New-Object psobject -Property @{
-            escalation_delay_in_minutes = $EscalationDelayInMinutes.ToString()
-            targets = $Targets
-        }
+    $Result = New-Object psobject -Property @{
+        escalation_delay_in_minutes = $EscalationDelayInMinutes.ToString()
+        targets = $Targets
     }
 
     $Result.pstypenames.Insert(0,'PagerDuty.EscalationRule')

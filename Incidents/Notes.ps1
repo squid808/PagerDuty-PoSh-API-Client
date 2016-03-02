@@ -40,7 +40,7 @@ function New-PagerDutyIncidentNote {
     $Uri = "incidents/$IncidentId/notes"
 
     $Body = @{
-        note = @{content = $Note} | ConvertTo-Json -Depth 5 -Compress
+        note = @{content = $Note}
     }
 
     if ($RequesterId) {

@@ -204,12 +204,15 @@ function Set-PagerDutyIncident {
             $Incidents = @($Incidents)
         }
 
-        #TODO: Decide if this needs to be type checked? Would prevent custom objects and hashtables.
-            $EscalationRules | Foreach-Object {$PagerDutyCore.VerifyTypeMatch($_, 'PagerDuty.Incident')}
-
-        $Body = @{
-            incidents = $Incidents | ConvertTo-Json -Depth 5 -Compress
+		$Body = @{
+            incidents = @()
         }
+		
+        #TODO: Decide if this needs to be type checked? Would prevent custom objects and hashtables.
+		$Incidents | Foreach-Object {
+			$PagerDutyCore.VerifyTypeMatch($_, 'PagerDuty.Incident')
+			$Body['incidents'] += $_
+		}
 
         if ($RequesterId) {
             $Body["requester_id"] = $RequesterId

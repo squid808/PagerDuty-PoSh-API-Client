@@ -198,9 +198,13 @@ function Set-PagerDutySchedule {
         }
 
         $Schedule = @{
-            schedule_layers = $ScheduleLayers | ConvertTo-Json -Depth 5 -Compress
+            schedule_layers = @()
             time_zone = $PagerDutyCore.ConvertTimeZone($TimeZone)
         }
+		
+		$ScheduleLayers | ForEach-Object {
+			$Schedule['schedule_layers'] += $_
+		}
 
         $Body['schedule'] = $Schedule
     }
@@ -278,10 +282,14 @@ function New-PagerDutySchedule {
     }
 
     $Schedule = @{
-        schedule_layers = $ScheduleLayers | ConvertTo-Json -Depth 5 -Compress
+        schedule_layers = @()
         time_zone = $PagerDutyCore.ConvertTimeZone($TimeZone)
         name = $Name
     }
+	
+	$ScheduleLayers | Foreach-Object {
+		$Schedule['schedule_layers'] += $_
+	}
 
     $Body['schedule'] = $Schedule
 
@@ -352,12 +360,16 @@ function New-PagerDutyScheduleLayerObject {
 
     $Body = @{
         start = $PagerDutyCore.ConvertDateTime($Start)
-        users = $Users | ConvertTo-Json -Depth 5 -Compress
+        users = @()
         rotation_virtual_start = $PagerDutyCore.ConvertDateTime($RotationVirtualStart)
         priority = $Priority
         rotation_turn_length_seconds = $RotationTurnLengthSeconds
     }
-
+	
+	$Users | ForEach-Object {
+		$Body['users'] += $_
+	}
+	
     if ($Id) {
         $Body['id'] = $Id    }
 
@@ -378,7 +390,11 @@ function New-PagerDutyScheduleLayerObject {
             $Restrictions = @($Restrictions)
         }
 
-        $Body['restrictions'] = $Restrictions | ConvertTo-Json -Depth 5 -Compress
+        $Body['restrictions'] = $()
+		
+		$Restrictions | ForEach-Object {
+			$Body['restrictions'] += $_
+		}
     }
 
     $Body.pstypenames.Insert(0,'PagerDuty.ScheduleLayer')

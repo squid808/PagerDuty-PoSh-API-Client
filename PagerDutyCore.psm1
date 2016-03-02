@@ -36,11 +36,15 @@ $PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "CheckForAuthDetails"
         }
 
         if ($this.domain -eq $null) {
-            $this.domain = Read-Host "Please enter your domain, eg for mydomain.pagerduty.com enter mydomain"
+            $this.domain = Read-Host "Please enter your PagerDuty domain, eg for mydomain.pagerduty.com enter mydomain"
         }
 
         if ($this.domain -contains ".pagerduty.com") {
             $this.domain = $this.domain.Replace(".pagerduty.com","")
+        }
+
+        if ($this.domain -contains ".com") {
+            $this.domain = $this.domain.Replace(".com","")
         }
 
         $this.SaveAuthDetails()
@@ -105,8 +109,14 @@ $PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ApiCallBase" -Value 
     if ($maxResults -AND $maxResults -gt 0 -AND $maxResults -lt $limit){
         $body["limit"] = $maxResults
     }
-
-    $results = Invoke-RestMethod -Method Get -Headers $headers -Uri $uri -Body $body
+    
+    if ($Method -ne [Microsoft.PowerShell.Commands.WebRequestMethod]::Get) {
+        $bodycontents = ($body | ConvertTo-Json -Depth 10 -Compress)
+    } else {
+        $bodycontents = $body
+    }
+    
+    $results = Invoke-RestMethod -Method $Method -Headers $headers -Uri $uri -Body $bodycontents
 
     if ($results.total -ne $null -OR 
         $results.limit -ne $null -OR 
@@ -144,7 +154,13 @@ $PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ApiCallBase" -Value 
                 $body["limit"] = ($maxResults - $collection.Count)
             }
 
-            $results = Invoke-RestMethod -Method Get -Headers $headers -Uri $Uri -Body $body
+            if ($Method -ne [Microsoft.PowerShell.Commands.WebRequestMethod]::Get) {
+                $bodycontents = ($body | ConvertTo-Json -Depth 10 -Compress)
+            } else {
+                $bodycontents = $body
+            }
+
+            $results = Invoke-RestMethod -Method $Method -Headers $headers -Uri $Uri -Body $bodycontents
 
             $collection.Add($results) | Out-Null
             

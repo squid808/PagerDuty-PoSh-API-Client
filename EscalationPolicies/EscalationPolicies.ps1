@@ -160,17 +160,20 @@ function Set-PagerDutyEscalationPolicy {
             $EscalationRules = @($EscalationRules)
         }
 
+		$Body["escalation_rules"] = @()
+		
         #TODO: Decide if this needs to be type checked? Would prevent custom objects and hashtables.
-        $EscalationRules | Foreach-Object {$PagerDutyCore.VerifyTypeMatch($_, 'PagerDuty.EscalationRule')}
-
-        $Body["escalation_rules"] = $EscalationRules | ConvertTo-Json -Depth 5 -Compress
+        $EscalationRules | Foreach-Object {
+			$PagerDutyCore.VerifyTypeMatch($_, 'PagerDuty.EscalationRule')
+			$Body["escalation_rules"] += $_
+		}
     }
 
     $Uri = "escalation_policies/"
 
     if ($PsCmdlet.ShouldProcess("New Escalation Policy")) {
         $Result = $PagerDutyCore.ApiPut($Uri, $Body)
-        $Result.escalation_policy.Insert(0,'PagerDuty.EscalationPolicy')
+        $Result.escalation_policy.pstypenames.Insert(0,'PagerDuty.EscalationPolicy')
         return $Result.escalation_policy
     }
 }
@@ -203,10 +206,13 @@ function New-PagerDutyEscalationPolicy {
         $EscalationRules = @($EscalationRules)
     }
 
-    #TODO: Decide if this needs to be type checked? Would prevent custom objects and hashtables.
-    $EscalationRules | Foreach-Object {$PagerDutyCore.VerifyTypeMatch($_, 'PagerDuty.EscalationRule')}
+    $Body["escalation_rules"] = @()
 
-    $Body["escalation_rules"] = $EscalationRules | ConvertTo-Json -Depth 5 -Compress
+    #TODO: Decide if this needs to be type checked? Would prevent custom objects and hashtables.
+    $EscalationRules | Foreach-Object {
+        $PagerDutyCore.VerifyTypeMatch($_, 'PagerDuty.EscalationRule')
+        $Body["escalation_rules"] += $_
+    }
 
     if ($RepeatEnabled) {
         $Body["repeat_enabled"] = $PagerDutyCore.ConvertBoolean($RepeatEnabled)
@@ -218,7 +224,7 @@ function New-PagerDutyEscalationPolicy {
 
     if ($PsCmdlet.ShouldProcess("New Escalation Policy")) {
         $Result = $PagerDutyCore.ApiPost("escalation_policies", $Body)
-        $Result.escalation_policy.Insert(0,'PagerDuty.EscalationPolicy')
+        $Result.escalation_policy.pstypenames.Insert(0,'PagerDuty.EscalationPolicy')
         return $Result.escalation_policy
     }
 }
