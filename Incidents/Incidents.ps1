@@ -10,7 +10,7 @@ function Get-PagerDutyIncident {
 
         #Use this if you are simply looking for the count of incidents that match a given query. This should be used if you don't need access to the actual incident details.
         [Parameter(Mandatory=$true, ParameterSetName='Count')]
-        [string]$CountOnly,
+        [switch]$CountOnly,
 
         #When set to all, the since and until parameters and defaults are ignored. Use this to get all incidents since the account was created.
         [Parameter(ValueFromPipelineByPropertyName=$true, ParameterSetName='List')]

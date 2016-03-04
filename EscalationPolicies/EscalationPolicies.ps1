@@ -35,6 +35,7 @@ function Get-PagerDutyEscalationPolicy {
 
         #When pulling multiple results, the maximum number of results you'd like returned.
         [Parameter(ParameterSetName='All')]
+        [Parameter(ParameterSetName='OnCall')]
         [int]$MaxResults
     )
 
@@ -50,6 +51,8 @@ function Get-PagerDutyEscalationPolicy {
             $Body['query'] = $Query
         }
         
+        $Results = New-Object System.Collections.ArrayList
+
         if ($PsCmdlet.ShouldProcess("get on-call escalation policies")) {
             $PagerDutyCore.ApiGet($Uri, $Body, $MaxResults) `
                 | ForEach-Object {$Results.AddRange($_.escalation_policies)}
@@ -169,7 +172,7 @@ function Set-PagerDutyEscalationPolicy {
 		}
     }
 
-    $Uri = "escalation_policies/"
+    $Uri = "escalation_policies/$Id"
 
     if ($PsCmdlet.ShouldProcess("New Escalation Policy")) {
         $Result = $PagerDutyCore.ApiPut($Uri, $Body)

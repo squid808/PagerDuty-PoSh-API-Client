@@ -75,7 +75,7 @@ function Set-PagerDutyEscalationRule {
 		}
 		
         if ($PsCmdlet.ShouldProcess("Set Multi Escalation Rule")) {
-            $Result = $PagerDutyCore.ApiPut($Uri)
+            $Result = $PagerDutyCore.ApiPut($Uri, $Body)
             $Result.escalation_rules | ForEach-Object {$_.pstypenames.Insert(0,'PagerDuty.EscalationRule')}
             return $Result.escalation_rules
         }
@@ -106,7 +106,7 @@ function Set-PagerDutyEscalationRule {
         if ($Body.Count -eq 0) { throw [System.ArgumentNullException] "Must provide one value to update for the escalation rule." }
 
         if ($PsCmdlet.ShouldProcess("Set Escalation Rule")) {
-            $Result = $PagerDutyCore.ApiPut($Uri)
+            $Result = $PagerDutyCore.ApiPut($Uri, $Body)
             $Result.escalation_rule.pstypenames.Insert(0,'PagerDuty.EscalationRule')
             return $Result.escalation_rule
         }
@@ -124,7 +124,7 @@ function New-PagerDutyEscalationRule {
         [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
         [int]$EscalationDelayInMinutes,
 
-        #The target or the array of the targets an incident should be assigned to upon reaching this rule. Parameters detailed below.
+        #The target or the array of the targets an incident should be assigned to upon reaching this rule.
         [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
         $Targets
     )
@@ -147,7 +147,7 @@ function New-PagerDutyEscalationRule {
 	}
 
     if ($PsCmdlet.ShouldProcess("New Escalation Rule")) {
-        $Result = $PagerDutyCore.ApiPost($Uri)
+        $Result = $PagerDutyCore.ApiPost($Uri, $Body)
         $Result.escalation_rule.pstypenames.Insert(0,'PagerDuty.EscalationRule')
         return $Result.escalation_rule
     }

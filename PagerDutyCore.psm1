@@ -97,22 +97,21 @@ $PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ApiCallBase" -Value 
         "Authorization"=("Token token="+$this.apiKey)
     }
 
-    $body = @{
-        "limit"=$limit
-        "offset"=0
-    }
+    $body = @{}
 
     if ($bodyAdditions -AND $bodyAdditions.Count -gt 0){
         $bodyAdditions.Keys | % {$body.Add($_, $bodyAdditions[$_])}
     }
-
-    if ($maxResults -AND $maxResults -gt 0 -AND $maxResults -lt $limit){
-        $body["limit"] = $maxResults
-    }
     
     if ($Method -ne [Microsoft.PowerShell.Commands.WebRequestMethod]::Get) {
         $bodycontents = ($body | ConvertTo-Json -Depth 10 -Compress)
+        $bodycontents = [Regex]::Replace($bodycontents, "\\[Uu]([0-9A-Fa-f]{4})", {[char]::ToString([Convert]::ToInt32($args[0].Groups[1].Value, 16))} )
     } else {
+        $body["limit"]=$limit
+        $body["offset"]=0
+        if ($maxResults -AND $maxResults -gt 0 -AND $maxResults -lt $limit){
+            $body["limit"] = $maxResults
+        }
         $bodycontents = $body
     }
     
@@ -154,13 +153,7 @@ $PagerDutyCore | Add-Member -MemberType ScriptMethod -Name "ApiCallBase" -Value 
                 $body["limit"] = ($maxResults - $collection.Count)
             }
 
-            if ($Method -ne [Microsoft.PowerShell.Commands.WebRequestMethod]::Get) {
-                $bodycontents = ($body | ConvertTo-Json -Depth 10 -Compress)
-            } else {
-                $bodycontents = $body
-            }
-
-            $results = Invoke-RestMethod -Method $Method -Headers $headers -Uri $Uri -Body $bodycontents
+            $results = Invoke-RestMethod -Method $Method -Headers $headers -Uri $Uri -Body $body
 
             $collection.Add($results) | Out-Null
             

@@ -115,7 +115,8 @@ function Set-PagerDutyService {
         [switch]$RegenerateKey,
 
         #The user id of the user creating the maintenance window. This is only needed if you are using token based authentication.
-        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName="Disable")]
+        [Parameter(ValueFromPipelineByPropertyName=$true, ParameterSetName="Disable")]
+
         [string]$RequesterId,
 
         #The name of the service.
@@ -166,7 +167,7 @@ function Set-PagerDutyService {
         $Uri += "/regenerate_key"
 
         if ($PsCmdlet.ShouldProcess("regenerate service key")) {
-            $Result = $PagerDutyCore.ApiPut($Uri)
+            $Result = $PagerDutyCore.ApiPut($Uri, $Body)
             $Result.service.pstypenames.Insert(0,'PagerDuty.Service')
             return $Result.service
         }
@@ -191,7 +192,7 @@ function Set-PagerDutyService {
         $Uri += "/enable"
 
         if ($PsCmdlet.ShouldProcess("enable service")) {
-            $Result = $PagerDutyCore.ApiPut($Uri)
+            $Result = $PagerDutyCore.ApiPut($Uri, $Body)
             return $Result
         }
 

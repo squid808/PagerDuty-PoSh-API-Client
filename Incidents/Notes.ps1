@@ -48,7 +48,7 @@ function New-PagerDutyIncidentNote {
     }
 
     if ($PsCmdlet.ShouldProcess("New incident note")) {
-        $Result = $PagerDutyCore.ApiPost($Uri)
+        $Result = $PagerDutyCore.ApiPost($Uri, $Body)
         $Result.note.pstypenames.Insert(0,'PagerDuty.IncidentNote')
         return $Result.note
     }

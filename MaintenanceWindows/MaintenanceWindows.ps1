@@ -1,76 +1,101 @@
 #TODO: Update Documentation
 
 function Get-PagerDutyMaintenanceWindow {
-[CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact="Low")]
+[CmdletBinding(DefaultParameterSetName="All", SupportsShouldProcess=$true, ConfirmImpact="Low")]
     Param(
+        #The ID of an existing Pager Duty maintenance window
+        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName="Id")]
+        [string]$Id,
+
         #Filters the results, showing only the maintenance windows whose descriptions contain the query.
-        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipelineByPropertyName=$true, ParameterSetName="All")]
         [string]$Query,
 
         #An array of service IDs, specifying services whose maintenance windows will be returned.
-        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipelineByPropertyName=$true, ParameterSetName="All")]
         $ServiceIds,
 
         #A comma-separated list of team IDs, specifying teams whose maintenance windows will be returned.
-        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipelineByPropertyName=$true, ParameterSetName="All")]
         $Teams,
 
         #Only return maintenance windows that are of this type. Possible values are past, future, ongoing. If this parameter is omitted, all maintenance windows will be returned.
-        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipelineByPropertyName=$true, ParameterSetName="All")]
         [PagerDuty.MaintenanceWindowFilters]$Filter,
 
         #Include inline teams information in the response.
+        [Parameter(ParameterSetName="Id")]
+        [Parameter(ParameterSetName="All")]
         [switch]$IncludeTeamsInResponse,
 
         #When pulling multiple results, the maximum number of results you'd like returned.
+        [Parameter(ParameterSetName="All")]
         [int]$MaxResults
     )
+    if ($PsCmdlet.ParameterSetName -eq "Id") {
 
-    $QueryAdditions = ""
+        $Uri = "maintenance_windows/$Id"
 
-    if ($ServiceIds) {
-        if ($ServiceIds -isnot [System.Collections.ICollection]){
-            $ServiceIds = @($ServiceIds)
+        $Body = @{}
+
+        if ($IncludeTeamsInResponse) {
+            $Body['include[]'] = 'teams'
         }
 
-        $ServiceIds | ForEach-Object {$QueryAdditions += "&service_ids[]=$_"}
-
-        if ($QueryAdditions.Length -ne 0) {
-            $QueryAdditions = '?' + $QueryAdditions.TrimStart('&')
+        if ($PsCmdlet.ShouldProcess("get maintenance window")) {
+            $Result = $PagerDutyCore.ApiGet($Uri, $Body)
+            $Result.maintenance_window.pstypenames.Insert(0,'PagerDuty.MaintenanceWindow')
+            return $Result.maintenance_window
         }
-    }
+        
+    } else {
 
-    $Uri = "maintenance_windows$QueryAdditions"
+        $QueryAdditions = ""
 
-    $Body = @{}
+        if ($ServiceIds) {
+            if ($ServiceIds -isnot [System.Collections.ICollection]){
+                $ServiceIds = @($ServiceIds)
+            }
 
-    if ($Query) {
-        $Body['query'] = $Query
-    }
+            $ServiceIds | ForEach-Object {$QueryAdditions += "&service_ids[]=$_"}
 
-    if ($Teams) {
-        if ($Teams -is [System.Collections.ICollection]){
-            $Teams = $Teams -join ","
+            if ($QueryAdditions.Length -ne 0) {
+                $QueryAdditions = '?' + $QueryAdditions.TrimStart('&')
+            }
         }
 
-        $Body['teams'] = $Teams.Replace(' ','')
-    }
+        $Uri = "maintenance_windows$QueryAdditions"
 
-    if ($Filter) {
-        $Body['filter'] = $Filter.ToString()
-    }
+        $Body = @{}
 
-    if ($IncludeTeamsInResponse) {
-        $Body['include[]'] = 'teams'
-    }
+        if ($Query) {
+            $Body['query'] = $Query
+        }
 
-    $Results = New-Object System.Collections.ArrayList
+        if ($Teams) {
+            if ($Teams -is [System.Collections.ICollection]){
+                $Teams = $Teams -join ","
+            }
 
-    if ($PsCmdlet.ShouldProcess("get maintenance windows")) {
-        $PagerDutyCore.ApiGet($Uri, $Body, $MaxResults) `
-            | ForEach-Object {$Results.AddRange($_.maintenance_windows)}
-        $Results | ForEach-Object {$_.pstypenames.Insert(0,'PagerDuty.MaintenanceWindow')}
-        return $Results
+            $Body['teams'] = $Teams.Replace(' ','')
+        }
+
+        if ($Filter) {
+            $Body['filter'] = $Filter.ToString()
+        }
+
+        if ($IncludeTeamsInResponse) {
+            $Body['include[]'] = 'teams'
+        }
+
+        $Results = New-Object System.Collections.ArrayList
+
+        if ($PsCmdlet.ShouldProcess("get maintenance windows")) {
+            $PagerDutyCore.ApiGet($Uri, $Body, $MaxResults) `
+                | ForEach-Object {$Results.AddRange($_.maintenance_windows)}
+            $Results | ForEach-Object {$_.pstypenames.Insert(0,'PagerDuty.MaintenanceWindow')}
+            return $Results
+        }
     }
 }
 
@@ -79,7 +104,7 @@ function Set-PagerDutyMaintenanceWindow {
     Param (
         #The ID of an existing Pager Duty maintenance window
         [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
-        [System.DateTime]$Id,
+        [string]$Id,
 
         #The maintenance window's start time. Can only be updated on future maintenance windows. If the start_time is set to a date in the past, it will be updated to the current date.
         [Parameter(ValueFromPipelineByPropertyName=$true)]
@@ -129,7 +154,7 @@ function Set-PagerDutyMaintenanceWindow {
     if ($Body.Count -eq 0) { throw [System.ArgumentNullException] "Must provide one value to update for the maintenance window." }
 
     if ($PsCmdlet.ShouldProcess("set maintenance window")) {
-        $Result = $PagerDutyCore.ApiPut($Uri)
+        $Result = $PagerDutyCore.ApiPut($Uri, $Body)
         $Result.maintenance_window.pstypenames.Insert(0,'PagerDuty.MaintenanceWindow')
         return $Result.maintenance_window
     }
@@ -139,8 +164,8 @@ function New-PagerDutyMaintenanceWindow {
 [CmdletBinding(DefaultParameterSetName="update", SupportsShouldProcess=$true, ConfirmImpact="Medium")]
     Param (
         #The user id of the user creating the maintenance window. This is only needed if you are using token based authentication.
-        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
-        [System.DateTime]$RequesterId,
+        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
+        [string]$RequesterId,
 
         #This maintenance window's start time. This is when the services will stop creating incidents. If this date is in the past, it will be updated to be the current time.
         [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
@@ -189,7 +214,7 @@ function New-PagerDutyMaintenanceWindow {
     $Body['maintenance_window'] = $MWObject
 
     if ($PsCmdlet.ShouldProcess("new maintenance window")) {
-        $Result = $PagerDutyCore.ApiPost($Uri)
+        $Result = $PagerDutyCore.ApiPost($Uri, $Body)
         $Result.maintenance_window.pstypenames.Insert(0,'PagerDuty.MaintenanceWindow')
         return $Result.maintenance_window
     }
@@ -200,13 +225,13 @@ function Remove-PagerDutyMaintenanceWindow {
     Param (
         #The ID of an existing Pager Duty maintenance window
         [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
-        [System.DateTime]$Id
+        [string]$Id
     )
 
     $Uri = "maintenance_windows/$Id"
 
     if ($PsCmdlet.ShouldProcess("remove maintenance window")) {
-        $Result = $PagerDutyCore.ApiPost($Uri)
+        $Result = $PagerDutyCore.ApiDelete($Uri, $Body)
         return $Result
     }
 }

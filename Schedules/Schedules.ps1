@@ -6,6 +6,7 @@ function Get-PagerDutySchedule {
         #The ID for an existing Pager Duty schedule.
         [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName="Id")]
         [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName="User")]
+        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true, ParameterSetName="Entry")]
         [string]$Id,
 
         #List existing on-call schedules.
@@ -156,7 +157,7 @@ function Get-PagerDutySchedule {
 }
 
 function Set-PagerDutySchedule {
-[CmdletBinding(DefaultParameterSetName="Schedule", SupportsShouldProcess=$true, ConfirmImpact="Medium")]
+[CmdletBinding(DefaultParameterSetName="Overflow", SupportsShouldProcess=$true, ConfirmImpact="Medium")]
     Param (
 
         #The ID for an existing Pager Duty schedule.
@@ -311,7 +312,7 @@ function Remove-PagerDutySchedule {
     $Uri = "schedules/$Id"
 
     if ($PsCmdlet.ShouldProcess("remove schedule")) {
-        $Result = $PagerDutyCore.ApiDelete("users/$Id")
+        $Result = $PagerDutyCore.ApiDelete($Uri)
 		return $Result.user
     }
 }
@@ -366,8 +367,15 @@ function New-PagerDutyScheduleLayerObject {
         rotation_turn_length_seconds = $RotationTurnLengthSeconds
     }
 	
+    $UserCount = 1
+
 	$Users | ForEach-Object {
-		$Body['users'] += $_
+		$Body['users'] += @{
+            user = @{ id = $_ }
+            member_order = $UserCount
+        }
+
+        $UserCount++
 	}
 	
     if ($Id) {
